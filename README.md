@@ -1,4 +1,9 @@
 # DEMIC
+
+<!-- badges: start -->
+  [![Codecov test coverage](https://codecov.io/gh/Ulthran/DEMIC/branch/master/graph/badge.svg)](https://app.codecov.io/gh/Ulthran/DEMIC?branch=master)
+<!-- badges: end -->
+
 DEMIC PTR analysis software in the form of an R package
 
 Main steps:
