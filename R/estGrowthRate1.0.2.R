@@ -281,8 +281,8 @@ itePipelines <- function(Z){
 #' @returns nothing, but outputs file with results
 #'
 #' @examples
-#' estGrowthRate("/path/to/input/coverage.cov3", "path/to/output/", 10)
-#' estGrowthRate("/path/to/input/coverage.cov3")
+#' estGrowthRate("tests/testthat/data/all_final_contigs.cov3", "tests/testthat/data/output", 10)
+#' estGrowthRate("tests/testthat/data/all_final_contigs.cov3")
 estGrowthRate <- function(input,output,max_candidate_iter){
   stopifnot(file.exists(input))
   if(missing(output)){
