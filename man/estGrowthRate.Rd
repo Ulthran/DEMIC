@@ -20,6 +20,6 @@ nothing, but outputs file with results
 Main function
 }
 \examples{
-estGrowthRate("/path/to/input/coverage.cov3", "path/to/output/", 10)
-estGrowthRate("/path/to/input/coverage.cov3")
+estGrowthRate("tests/testthat/data/all_final_contigs.cov3", "tests/testthat/data/output", 10)
+estGrowthRate("tests/testthat/data/all_final_contigs.cov3")
 }
