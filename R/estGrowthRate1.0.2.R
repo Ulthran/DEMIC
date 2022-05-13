@@ -277,7 +277,7 @@ itePipelines <- function(Z){
 #'
 #' @param input path to the coverage matrix file in csv form (column names: "logCov", "GC", "sample", "contig", "length")
 #' @param output path to the output directory (default: "getwd()/output/")
-#' @param max_candidtate_iter SOMETHING (default: 10)
+#' @param max_candidate_iter SOMETHING (default: 10)
 #' @returns nothing, but outputs file with results
 #'
 # @examples
