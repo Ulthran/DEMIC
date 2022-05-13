@@ -19,7 +19,3 @@ nothing, but outputs file with results
 \description{
 Main function
 }
-\examples{
-estGrowthRate("tests/testthat/data/all_final_contigs.cov3", "tests/testthat/data/output", 10)
-estGrowthRate("tests/testthat/data/all_final_contigs.cov3")
-}
