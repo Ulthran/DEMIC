@@ -13,6 +13,9 @@ estGrowthRate(input, output, max_candidate_iter)
 
 \item{max_candidtate_iter}{SOMETHING (default: 10)}
 }
+\value{
+nothing, but outputs file with results
+}
 \description{
 Main function
 }
