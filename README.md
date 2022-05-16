@@ -2,6 +2,8 @@
 
 <!-- badges: start -->
   [![Codecov test coverage](https://codecov.io/gh/Ulthran/DEMIC/branch/master/graph/badge.svg)](https://app.codecov.io/gh/Ulthran/DEMIC?branch=master)
+  [![R-CMD-check](https://github.com/Ulthran/DEMIC/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/Ulthran/DEMIC/actions/workflows/R-CMD-check.yaml)
+  [![pkgdown](https://github.com/Ulthran/DEMIC/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/Ulthran/DEMIC/actions/workflows/pkgdown.yaml)
 <!-- badges: end -->
 
 DEMIC PTR analysis software in the form of an R package
