@@ -280,6 +280,8 @@ itePipelines <- function(Z){
 #' @param max_candidate_iter SOMETHING (default: 10)
 #' @returns nothing, but outputs file with results
 #'
+#' @importFrom utils read.csv
+#'
 # @examples
 # estGrowthRate("tests/testthat/data/all_final_contigs.cov3", "tests/testthat/data/output", 10)
 # estGrowthRate("tests/testthat/data/all_final_contigs.cov3")
