@@ -65,6 +65,9 @@ selectAccordingToKSTest<-function(sortValues){
 #' @param x first vector
 #' @param y second vector
 #' @return the coefficient and p value of linear regression
+#'
+#' @importFrom stats anova
+#' @importFrom stats lm
 lmColumn <- function(x, y) {
   lmModel <- lm(x~y)
   anova_model <- anova(lmModel)
@@ -175,6 +178,12 @@ testReasonable<-function(a,b) {
 #' @param i cutoff of filtering samples changes according to parameter i; i=1, cutoffRatio is 0.5; i=2, cutoffRatio is 1 as contig is clean
 #' @return final filtered samples, matrix of sample, contig and corrected coverages,
 #' filtered contigs with PC1 values, PC1 range, preliminary filtered samples
+#'
+#' @importFrom stats coef
+#' @importFrom stats cor
+#' @importFrom stats cor.test
+#' @importFrom stats ks.test
+#' @importFrom stats p.adjust
 pipeline <- function(Y, i){
 
   lmeModel <- lme4::lmer(logCov~GC+(1|sample:contig), data = Y, REML=FALSE)
@@ -281,6 +290,9 @@ itePipelines <- function(Z){
 #' @returns nothing, but outputs file with results
 #'
 #' @importFrom utils read.csv
+#' @importFrom utils write.table
+#' @importFrom stats aggregate
+#' @importFrom stats prcomp
 #'
 # @examples
 # estGrowthRate("tests/testthat/data/all_final_contigs.cov3", "tests/testthat/data/output", 10)
