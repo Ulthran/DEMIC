@@ -207,12 +207,16 @@ pipeline <- function(Y, i){
     return("too few (<2) samples with reliable coverages for the set of contigs")
   }
 
-  #summeryMeanYSortFilterWide is the relatively clean matrix with more confident samples and the correponding contigs with avaiable values
+  #summeryMeanYSortFilterWide is the relatively clean matrix with more confident samples and the corresponding contigs with available values
   summeryMeanYSortFilterWide <- reshapeFiltered(Samples_filteredY, summeryMeanYSort2)
 
   #do PCA for contigs
   contigPCA <- FactoMineR::PCA(summeryMeanYSortFilterWide, scale.unit = FALSE, ncp=1)
-  #contigPCA <- prcomp(summeryMeanYSortFilterWide, scale.=FALSE, rank.=1)
+  #contigPCA <- prcomp(summeryMeanYSortFilterWide) #take first component (PC1)
+  print("FactoMineR:\n")
+  print(contigPCA$ind$coord[,"Dim.1"])
+  print("prcomp:\n")
+  print(prcomp(summeryMeanYSortFilterWide))
   pca <- data.frame("contig"= rownames(contigPCA$ind$coord), "PC1" = contigPCA$ind$coord[,"Dim.1"])
   ksResult <- ks.test(pca$PC1, "punif", min(pca$PC1), max(pca$PC1))
 
