@@ -8,7 +8,7 @@
 
 DEMIC PTR analysis software in the form of an R package
 
-Main steps:
+Main steps before R (used to be handled by Perl):
 1. Check and record parameters designated by user
 2. Record GC content in sliding windows for contigs
 	key subroutine:

@@ -11,7 +11,7 @@ estGrowthRate(input, output, max_candidate_iter)
 
 \item{output}{path to the output directory (default: "getwd()/output/")}
 
-\item{max_candidate_iter}{SOMETHING (default: 10)}
+\item{max_candidate_iter}{max allowed iterations for estimation of PTR (default: 10)}
 }
 \value{
 nothing, but outputs file with results

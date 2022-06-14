@@ -172,6 +172,21 @@ testReasonable<-function(a,b) {
   }
 }
 
+#' A function to return the first dimension of PCA on an input matrix
+#' @param X a matrix to undergo PCA
+#' @return first dimension of the PCA results
+contig_pca <- function(X){
+  contigPCA <- prcomp(X) #take first component (PC1)
+
+  return(data.frame("contig"= rownames(contigPCA$x), "PC1" = contigPCA$x[,"PC1"]))
+}
+
+legacy_pca <- function(X){
+  contigPCA <- FactoMineR::PCA(X, scale.unit = FALSE, ncp=1)
+
+  return(data.frame("contig"= rownames(contigPCA$ind$coord), "PC1" = contigPCA$ind$coord[,"Dim.1"]))
+}
+
 #' A function representing the pipeline of four steps
 #' including GC bias correction, sample filtration, PCA and contig filtration
 #' @param Y a matrix of coverages
@@ -185,7 +200,6 @@ testReasonable<-function(a,b) {
 #' @importFrom stats ks.test
 #' @importFrom stats p.adjust
 pipeline <- function(Y, i){
-
   lmeModel <- lme4::lmer(logCov~GC+(1|sample:contig), data = Y, REML=FALSE)
   summeryMeanY <- aggregate(GC~(sample:contig),Y,FUN = "mean")
   summeryMeanY$s_c <- paste(summeryMeanY$sample, summeryMeanY$contig, sep=':')
@@ -211,13 +225,7 @@ pipeline <- function(Y, i){
   summeryMeanYSortFilterWide <- reshapeFiltered(Samples_filteredY, summeryMeanYSort2)
 
   #do PCA for contigs
-  contigPCA <- FactoMineR::PCA(summeryMeanYSortFilterWide, scale.unit = FALSE, ncp=1)
-  #contigPCA <- prcomp(summeryMeanYSortFilterWide) #take first component (PC1)
-  print("FactoMineR:\n")
-  print(contigPCA$ind$coord[,"Dim.1"])
-  print("prcomp:\n")
-  print(prcomp(summeryMeanYSortFilterWide))
-  pca <- data.frame("contig"= rownames(contigPCA$ind$coord), "PC1" = contigPCA$ind$coord[,"Dim.1"])
+  legacy_pca <- contig_pca(summeryMeanYSortFilterWide)
   ksResult <- ks.test(pca$PC1, "punif", min(pca$PC1), max(pca$PC1))
 
   #all good contigs follow uniform distribution
@@ -290,7 +298,7 @@ itePipelines <- function(Z){
 #'
 #' @param input path to the coverage matrix file in csv form (column names: "logCov", "GC", "sample", "contig", "length")
 #' @param output path to the output directory (default: "getwd()/output/")
-#' @param max_candidate_iter SOMETHING (default: 10)
+#' @param max_candidate_iter max allowed iterations for estimation of PTR (default: 10)
 #' @returns nothing, but outputs file with results
 #'
 #' @importFrom utils read.csv
@@ -404,7 +412,6 @@ estGrowthRate <- function(input,output,max_candidate_iter){
 
           if(nrow(estPTRsEach12)>0.9*nrow(estPTRsEach1) & nrow(estPTRsEach12)>0.9*nrow(estPTRsEach2)){
             cor_current <- cor(estPTRsEach12$estPTR.x,estPTRsEach12$estPTR.y)
-            #print(cor_current)
             if (cor_current > max_cor) {
               max_cor <- cor_current
             }
@@ -493,7 +500,6 @@ estGrowthRate <- function(input,output,max_candidate_iter){
           estPTRsEach[[q+1]] <- merge(estPTRs, aggregate(correctY~sample, summeryMeanYSortFilteredSampleContig1, FUN="median"), by = "sample")
 
         }
-        #print(s)
         if(length(estPTRsEach) < 3) {
           next
         }
@@ -510,9 +516,6 @@ estGrowthRate <- function(input,output,max_candidate_iter){
             estPTRsInt <- merge(estPTRsq[estPTRsq$sample %in% intSamples, c("sample", "estPTR")], estPTRsr[estPTRsr$sample %in% intSamples, c("sample", "estPTR")], by="sample")
             minor_sample_q <- cor_diff(estPTRsq)
             minor_sample_r <- cor_diff(estPTRsr)
-            #print(q)
-            #print(r)
-            #print(cor(estPTRsInt[,3],estPTRsInt[,2]))
 
             corqr <- cor(estPTRsInt[,3],estPTRsInt[,2])
             if(corqr > cormax & length(minor_sample_q)==0 & length(minor_sample_r)==0 ){
@@ -561,9 +564,7 @@ estGrowthRate <- function(input,output,max_candidate_iter){
   }
 
   # Output to .eptr
-  print(output)
   final_output <- file.path(output, "out.eptr")
-  print(final_output)
   write.table(estPTRs2, file=final_output, sep="\t", quote=FALSE)
 
   # Edit by scottdaniel25@gmail.com
