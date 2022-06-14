@@ -1,8 +1,8 @@
 test_that("KS test returns accurate p-value", {
-  x<-runif(100,-1,1)
-  res <- ks(x)
+  #x<-runif(100,-1,1)
+  #res <- ks(x)
 
-  expect_equal("Working", "Working")
+  #expect_equal("Working", "Working")
 })
 
 pca_input <- as.matrix(iris[,1:4])
@@ -106,10 +106,6 @@ expected_pca_output <- structure(list(contig = c("contig 1", "contig 2", "contig
                                                                                          "contig 139", "contig 140", "contig 141", "contig 142", "contig 143",
                                                                                          "contig 144", "contig 145", "contig 146", "contig 147", "contig 148",
                                                                                          "contig 149", "contig 150"))
-
-test_that("FactoMineR PCA does it's job correctly", {
-  expect_equal(legacy_pca(pca_input), expected_pca_output)
-})
 
 test_that("prcomp PCA does it's job correctly", {
   expect_equal(contig_pca(pca_input), expected_pca_output)

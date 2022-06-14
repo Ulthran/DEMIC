@@ -181,12 +181,6 @@ contig_pca <- function(X){
   return(data.frame("contig"= rownames(contigPCA$x), "PC1" = contigPCA$x[,"PC1"]))
 }
 
-legacy_pca <- function(X){
-  contigPCA <- FactoMineR::PCA(X, scale.unit = FALSE, ncp=1)
-
-  return(data.frame("contig"= rownames(contigPCA$ind$coord), "PC1" = contigPCA$ind$coord[,"Dim.1"]))
-}
-
 #' A function representing the pipeline of four steps
 #' including GC bias correction, sample filtration, PCA and contig filtration
 #' @param Y a matrix of coverages
@@ -225,7 +219,7 @@ pipeline <- function(Y, i){
   summeryMeanYSortFilterWide <- reshapeFiltered(Samples_filteredY, summeryMeanYSort2)
 
   #do PCA for contigs
-  legacy_pca <- contig_pca(summeryMeanYSortFilterWide)
+  pca <- contig_pca(summeryMeanYSortFilterWide)
   ksResult <- ks.test(pca$PC1, "punif", min(pca$PC1), max(pca$PC1))
 
   #all good contigs follow uniform distribution
