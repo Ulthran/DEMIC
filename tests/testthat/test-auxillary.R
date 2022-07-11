@@ -5,6 +5,7 @@ test_that("KS test returns accurate p-value", {
   #expect_equal("Working", "Working")
 })
 
+# PCA func expected values
 pca_input <- as.matrix(iris[,1:4])
 rownames(pca_input) <- paste("contig", 1:150)
 expected_pca_output <- structure(list(contig = c("contig 1", "contig 2", "contig 3",
@@ -107,7 +108,7 @@ expected_pca_output <- structure(list(contig = c("contig 1", "contig 2", "contig
                                                                                          "contig 144", "contig 145", "contig 146", "contig 147", "contig 148",
                                                                                          "contig 149", "contig 150"))
 
-test_that("prcomp PCA does it's job correctly", {
+test_that("PCA func does it's job correctly", {
   expect_equal(contig_pca(pca_input), expected_pca_output)
 })
 
