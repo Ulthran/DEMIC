@@ -1,12 +1,12 @@
-test_that("DEMIC main function produces out.eptr on test set 1", {
+#test_that("DEMIC main function produces out.eptr on test set 1", {
   #tempdir <- normalizePath(tempdir())
   #estGrowthRate("data/all_final_contigs.cov3", paste(tempdir, "output", sep="\\"))
-  estGrowthRate("data/all_final_contigs.cov3", "data/output")
+#  estGrowthRate("data/all_final_contigs.cov3", "data/output")
 
-  O <- read.table(file = file.path("data/output", "out.eptr"), sep = "\t", header = TRUE)
-  E <- read.table(file = file.path("data/expected_output", "out.eptr"), sep = "\t", header = TRUE)
-  expect_equal(O, E)
-})
+#  O <- read.table(file = file.path("data/output", "out.eptr"), sep = "\t", header = TRUE)
+#  E <- read.table(file = file.path("data/expected_output", "out.eptr"), sep = "\t", header = TRUE)
+#  expect_equal(O, E)
+#})
 
 test_that("DEMIC main function produces out.eptr on test set 2", {
   #tempdir <- normalizePath(tempdir())
