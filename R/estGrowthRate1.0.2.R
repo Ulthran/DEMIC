@@ -316,7 +316,7 @@ estGrowthRate <- function(input,output,max_candidate_iter){
   }
 
   # Load matrix of .cov3 and rename the heads
-  X <- read.csv(input, header=FALSE)
+  X <- read.csv(input, header=FALSE, stringsAsFactors=TRUE)
 
   colnames(X) <- c("logCov", "GC", "sample", "contig", "length")
 
