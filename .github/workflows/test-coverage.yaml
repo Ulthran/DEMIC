@@ -27,4 +27,4 @@ jobs:
 
       - name: Test coverage
         run: covr::codecov()
-        shell: Rscript -e {0}
+        shell: Rscript {0}
