@@ -54,8 +54,19 @@
 <div class="page-header"><h1 id="demic">DEMIC<a class="anchor" aria-label="anchor" href="#demic"></a>
 </h1></div>
 <!-- badges: start -->
-<p>DEMIC PTR analysis software in the form of an R package</p>
-<p>Main steps before R (used to be handled by Perl): 1. Check and record parameters designated by user 2. Record GC content in sliding windows for contigs key subroutine: &amp;GC_count 3. Distribute SAM files to threads and calculate coverages in sliding windows key subroutine: &amp;sam_cov_parallel 4. Convert COV2 (coverage in samples) to COV3 (coverage in contig clusters) 5. Distribute COV3 files to threads and invoke R to estimate growth rates key subroutine: &amp;cov3_estPTR_parallel 6. Output</p>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<p>The development version can be installed from GitHub with:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"Ulthran/DEMIC"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
+</h2>
+<p>This package is intended to be used in the context of the sunbeam extension <a href="https://github.com/Ulthran/sbx_demic" class="external-link">sbx_demic</a>. To use it independently of sunbeam, you’ll have to be able to generate the coverage files as input. Please cite Gao, Y., Li, H. Quantifying and comparing bacterial growth dynamics in multiple metagenomic samples. Nat Methods 15, 1041–1044 (2018). <a href="https://doi.org/10.1038/s41592-018-0182-0" class="external-link uri">https://doi.org/10.1038/s41592-018-0182-0</a>.</p>
+</div>
 </div>
   </main><aside class="col-md-3"><div class="license">
 <h2 data-toc-skip>License</h2>
@@ -86,6 +97,7 @@
 <li><a href="https://app.codecov.io/gh/Ulthran/DEMIC?branch=master" class="external-link"><img src="https://codecov.io/gh/Ulthran/DEMIC/branch/master/graph/badge.svg" alt="Codecov test coverage"></a></li>
 <li><a href="https://github.com/Ulthran/DEMIC/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/Ulthran/DEMIC/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
 <li><a href="https://github.com/Ulthran/DEMIC/actions/workflows/pkgdown.yaml" class="external-link"><img src="https://github.com/Ulthran/DEMIC/actions/workflows/pkgdown.yaml/badge.svg" alt="pkgdown"></a></li>
+<li><a href="https://doi.org/10.1038/s41592-018-0182-0" class="external-link"><img src="https://badgen.net/badge/Published%20in/Nat%20Methods/blue" alt="DOI:10.1038/s41592-018-0182-0"></a></li>
 </ul>
 </div>
 
