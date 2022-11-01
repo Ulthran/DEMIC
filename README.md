@@ -4,20 +4,18 @@
   [![Codecov test coverage](https://codecov.io/gh/Ulthran/DEMIC/branch/master/graph/badge.svg)](https://app.codecov.io/gh/Ulthran/DEMIC?branch=master)
   [![R-CMD-check](https://github.com/Ulthran/DEMIC/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/Ulthran/DEMIC/actions/workflows/R-CMD-check.yaml)
   [![pkgdown](https://github.com/Ulthran/DEMIC/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/Ulthran/DEMIC/actions/workflows/pkgdown.yaml)
+  [![DOI:10.1038/s41592-018-0182-0](https://badgen.net/badge/Published%20in/Nat%20Methods/blue)](https://doi.org/10.1038/s41592-018-0182-0)
 <!-- badges: end -->
 
-DEMIC PTR analysis software in the form of an R package
+## Installation
 
-Main steps before R (used to be handled by Perl):
-1. Check and record parameters designated by user
-2. Record GC content in sliding windows for contigs
-	key subroutine:
-	&GC_count
-3. Distribute SAM files to threads and calculate coverages in sliding windows
-	key subroutine:
-	&sam_cov_parallel
-4. Convert COV2 (coverage in samples) to COV3 (coverage in contig clusters)
-5. Distribute COV3 files to threads and invoke R to estimate growth rates
-	key subroutine:
-	&cov3_estPTR_parallel
-6. Output
+The development version can be installed from GitHub with:
+
+```r
+# install.packages("devtools")
+devtools::install_github("Ulthran/DEMIC")
+```
+
+## Documentation
+
+This package is intended to be used in the context of the sunbeam extension [sbx_demic](https://github.com/Ulthran/sbx_demic). To use it independently of sunbeam, you'll have to be able to generate the coverage files as input. Please cite Gao, Y., Li, H. Quantifying and comparing bacterial growth dynamics in multiple metagenomic samples. Nat Methods 15, 1041–1044 (2018). https://doi.org/10.1038/s41592-018-0182-0.
