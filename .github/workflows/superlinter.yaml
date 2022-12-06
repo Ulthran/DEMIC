@@ -21,4 +21,4 @@ jobs:
 
           VALIDATE_R_LINTR: true
 
-          FILTER_REGEX_INCLUDE: R/.*|tests/.*
+          FILTER_REGEX_INCLUDE: R/.*|tests/.*\.R
