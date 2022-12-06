@@ -20,3 +20,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
           VALIDATE_R_LINTR: true
+
+          FILTER_REGEX_INCLUDE: R/.*|tests/.*
