@@ -1,7 +1,7 @@
 # PCA func expected values
 pca_input <- as.matrix(iris[, 1:4])
 rownames(pca_input) <- paste("contig", 1:150)
-expected_pca_output <- structure(list(contig = c(
+contignames <- c(
   "contig 1", "contig 2", "contig 3",
   "contig 4", "contig 5", "contig 6", "contig 7", "contig 8", "contig 9",
   "contig 10", "contig 11", "contig 12", "contig 13", "contig 14",
@@ -33,7 +33,8 @@ expected_pca_output <- structure(list(contig = c(
   "contig 140", "contig 141", "contig 142", "contig 143", "contig 144",
   "contig 145", "contig 146", "contig 147", "contig 148", "contig 149",
   "contig 150"
-), PC1 = c(
+)
+expected_pca_output <- structure(list(contig = contignames, PC1 = c(
   -2.68412562596952, -2.71414168729432,
   -2.88899056905929, -2.74534285564141, -2.72871653655453, -2.28085963284449,
   -2.8205377507406, -2.62614497314663, -2.88638273178055, -2.67275579782095,
@@ -72,39 +73,7 @@ expected_pca_output <- structure(list(contig = c(
   1.1693263393415, 2.10761114325724, 2.3141547052356, 1.9222678009026,
   1.41523587670391, 2.56301337507748, 2.41874618273283, 1.94410979454697,
   1.52716661481452, 1.76434571704443, 1.90094161421843, 1.39018886194792
-)), class = "data.frame", row.names = c(
-  "contig 1", "contig 2",
-  "contig 3", "contig 4", "contig 5", "contig 6", "contig 7", "contig 8",
-  "contig 9", "contig 10", "contig 11", "contig 12", "contig 13",
-  "contig 14", "contig 15", "contig 16", "contig 17", "contig 18",
-  "contig 19", "contig 20", "contig 21", "contig 22", "contig 23",
-  "contig 24", "contig 25", "contig 26", "contig 27", "contig 28",
-  "contig 29", "contig 30", "contig 31", "contig 32", "contig 33",
-  "contig 34", "contig 35", "contig 36", "contig 37", "contig 38",
-  "contig 39", "contig 40", "contig 41", "contig 42", "contig 43",
-  "contig 44", "contig 45", "contig 46", "contig 47", "contig 48",
-  "contig 49", "contig 50", "contig 51", "contig 52", "contig 53",
-  "contig 54", "contig 55", "contig 56", "contig 57", "contig 58",
-  "contig 59", "contig 60", "contig 61", "contig 62", "contig 63",
-  "contig 64", "contig 65", "contig 66", "contig 67", "contig 68",
-  "contig 69", "contig 70", "contig 71", "contig 72", "contig 73",
-  "contig 74", "contig 75", "contig 76", "contig 77", "contig 78",
-  "contig 79", "contig 80", "contig 81", "contig 82", "contig 83",
-  "contig 84", "contig 85", "contig 86", "contig 87", "contig 88",
-  "contig 89", "contig 90", "contig 91", "contig 92", "contig 93",
-  "contig 94", "contig 95", "contig 96", "contig 97", "contig 98",
-  "contig 99", "contig 100", "contig 101", "contig 102", "contig 103",
-  "contig 104", "contig 105", "contig 106", "contig 107", "contig 108",
-  "contig 109", "contig 110", "contig 111", "contig 112", "contig 113",
-  "contig 114", "contig 115", "contig 116", "contig 117", "contig 118",
-  "contig 119", "contig 120", "contig 121", "contig 122", "contig 123",
-  "contig 124", "contig 125", "contig 126", "contig 127", "contig 128",
-  "contig 129", "contig 130", "contig 131", "contig 132", "contig 133",
-  "contig 134", "contig 135", "contig 136", "contig 137", "contig 138",
-  "contig 139", "contig 140", "contig 141", "contig 142", "contig 143",
-  "contig 144", "contig 145", "contig 146", "contig 147", "contig 148",
-  "contig 149", "contig 150"
-))
+)), class = "data.frame", row.names = contignames)
 
 test_that("PCA func does it's job correctly", {
   expect_equal(contig_pca(pca_input), expected_pca_output)
