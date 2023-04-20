@@ -180,6 +180,7 @@ contig_pca <- function(X) {
 #' @importFrom stats ks.test
 #' @importFrom stats p.adjust
 pipeline <- function(Y, i) {
+  log_info("Starting pipeline run...")
   lmeModel <- lme4::lmer(logCov ~ GC + (1 | sample:contig), data = Y, REML = FALSE)
   summeryMeanY <- aggregate(GC ~ (sample:contig), Y, FUN = "mean")
   summeryMeanY$s_c <- paste(summeryMeanY$sample, summeryMeanY$contig, sep = ":")
@@ -198,6 +199,7 @@ pipeline <- function(Y, i) {
   i <- 1
   Samples_filteredY <- filterSample(summeryMeanYSort2, 0, 1 / (3 - i))
   if (length(Samples_filteredY) < 2) {
+    log_info("Too few (<2) samples with reliable coverages for the set of contigs")
     return("too few (<2) samples with reliable coverages for the set of contigs")
   }
 
@@ -214,6 +216,7 @@ pipeline <- function(Y, i) {
   if (range[3] == TRUE) {
     contigPCAPC1Filtered <- subset(pca, PC1 >= range[1] & PC1 <= range[2])
   } else {
+    log_info("Cannot find a continuous set of contigs in uniform distribution")
     return("cannot find a continuous set of contigs in uniform distribution")
   }
   # largerClusterContig contains contigs within the range consistent with uniform distribution
@@ -243,6 +246,7 @@ pipeline <- function(Y, i) {
 #' @return final filtered samples, matrix of sample, contig and corrected coverages,
 #' filtered contigs with PC1 values, PC1 range, preliminary filtered samples
 itePipelines <- function(Z) {
+  log_info("Starting pipeline iteration...")
   pipeline1 <- pipeline(Z, 1)
   if (length(pipeline1) == 1) {
     return(pipeline1)
@@ -288,7 +292,7 @@ itePipelines <- function(Z) {
 estGrowthRate <- function(input, output, max_candidate_iter) {
   stopifnot(file.exists(input))
   if (missing(output)) {
-    log_info("Setting output path to output/")
+    log_info(str_glue("Setting output path to {file.path(getwd(), output)}"))
     output <- file.path(getwd(), output)
   }
   if (!dir.exists(output)) {
@@ -300,7 +304,7 @@ estGrowthRate <- function(input, output, max_candidate_iter) {
     max_candidate_iter <- 10
   }
 
-  log_info("Starting pipeline...")
+  log_info("Starting DEMIC...")
 
   # Load matrix of .cov3 and rename the heads
   X <- read.csv(input, header = FALSE, stringsAsFactors = TRUE)
@@ -316,6 +320,7 @@ estGrowthRate <- function(input, output, max_candidate_iter) {
 
   # Attempt the default iteration for contigs
   if (length(levels(X$contig)) >= 20 & length(levels(X$sample)) >= 3) {
+    log_info("Attempting default iteration for contigs")
     cor_cutoff <- 0.98
     max_cor <- 0
     for (s2 in 1:3) {
@@ -423,6 +428,7 @@ estGrowthRate <- function(input, output, max_candidate_iter) {
 
   # Attempt alternative iteration for samples
   if (tag_permu == 0) {
+    log_info("Attempting alternative iteration for samples")
     pipelineY <- itePipelines(Y)
     if (length(pipelineY) == 1) {
       stop("pipelineY failed")
@@ -538,6 +544,7 @@ estGrowthRate <- function(input, output, max_candidate_iter) {
   }
 
   # Output to .eptr
+  log_info(str_glue("Writing output to {file.path(output, 'out.eptr')}"))
   final_output <- file.path(output, "out.eptr")
   write.table(estPTRs2, file = final_output, sep = "\t", quote = FALSE)
 
