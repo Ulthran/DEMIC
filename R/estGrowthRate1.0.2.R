@@ -301,8 +301,8 @@ estGrowthRate <- function(input, output, max_candidate_iter) {
   if (missing(output)) {
     log_info(stringr::str_glue("Setting output path to {file.path(getwd(), output)}"))
     output <- file.path(getwd(), output)
-    log_appender(appender_file(file.path(output, "log")))
   }
+  log_appender(appender_file(file.path(output, "log")))
   if (!dir.exists(output)) {
     log_info("Creating output dir")
     dir.create(output)
