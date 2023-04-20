@@ -306,7 +306,7 @@ estGrowthRate <- function(input, output, max_candidate_iter) {
   if (file.exists(file.path(output, "log"))) {
     file.remove(file.path(output, "log"))
   }
-  logger::log_appender(appender_tee(file.path(output, "log")))
+  logger::log_appender(logger::appender_tee(file.path(output, "log")))
 
   if (!dir.exists(output)) {
     log_info("Creating output dir")
