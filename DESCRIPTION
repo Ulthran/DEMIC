@@ -11,7 +11,9 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
 Imports:
     lme4,
-    reshape2
+    logger,
+    reshape2,
+    stringr
 Suggests: 
     covr,
     testthat (>= 3.0.0)
