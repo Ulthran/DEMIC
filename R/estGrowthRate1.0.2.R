@@ -4,6 +4,9 @@
 # See file LICENSE for details.
 ############################################################################
 
+library(logger)
+library(stringr)
+
 #' A convenient function for KS test of uniform distribution
 #' @param x a vector without NA
 #' @return the p value of KS test
@@ -285,14 +288,19 @@ itePipelines <- function(Z) {
 estGrowthRate <- function(input, output, max_candidate_iter) {
   stopifnot(file.exists(input))
   if (missing(output)) {
+    log_info("Setting output path to output/")
     output <- file.path(getwd(), output)
   }
   if (!dir.exists(output)) {
+    log_info("Creating output dir")
     dir.create(output)
   }
   if (missing(max_candidate_iter)) {
+    log_info("Setting max_candidate_iter to default (10)")
     max_candidate_iter <- 10
   }
+
+  log_info("Starting pipeline...")
 
   # Load matrix of .cov3 and rename the heads
   X <- read.csv(input, header = FALSE, stringsAsFactors = TRUE)
@@ -304,6 +312,7 @@ estGrowthRate <- function(input, output, max_candidate_iter) {
   Y <- X
 
   save.image(file.path(output, "savepoint_demic.RData"))
+  log_info(str_glue("Saved image to {file.path(output, 'savepoint_demic.RData')}"))
 
   # Attempt the default iteration for contigs
   if (length(levels(X$contig)) >= 20 & length(levels(X$sample)) >= 3) {
