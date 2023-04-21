@@ -179,8 +179,10 @@ contig_pca <- function(X) {
 #' @importFrom stats cor.test
 #' @importFrom stats ks.test
 #' @importFrom stats p.adjust
+#' @importFrom logger logger::log_info
 pipeline <- function(Y, i) {
   logger::log_info("Starting pipeline run...")
+
   lmeModel <- lme4::lmer(logCov ~ GC + (1 | sample:contig), data = Y, REML = FALSE)
   summeryMeanY <- aggregate(GC ~ (sample:contig), Y, FUN = "mean")
   summeryMeanY$s_c <- paste(summeryMeanY$sample, summeryMeanY$contig, sep = ":")
@@ -245,6 +247,8 @@ pipeline <- function(Y, i) {
 #' @param Z a matrix of coverages
 #' @return final filtered samples, matrix of sample, contig and corrected coverages,
 #' filtered contigs with PC1 values, PC1 range, preliminary filtered samples
+#'
+#' @importFrom logger logger::log_info
 itePipelines <- function(Z) {
   logger::log_info("Starting pipeline iteration...")
   pipeline1 <- pipeline(Z, 1)
@@ -285,16 +289,27 @@ itePipelines <- function(Z) {
 #' @importFrom utils write.table
 #' @importFrom stats aggregate
 #' @importFrom stats prcomp
+#' @importFrom logger logger::log_info
+#' @importFrom logger log_appender
+#' @importFrom logger appender_file
 #'
 # @examples
 # estGrowthRate("tests/testthat/data/all_final_contigs.cov3", "tests/testthat/data/output", 10)
 # estGrowthRate("tests/testthat/data/all_final_contigs.cov3")
+#'
+#' @export
 estGrowthRate <- function(input, output, max_candidate_iter) {
   stopifnot(file.exists(input))
   if (missing(output)) {
     logger::log_info(stringr::str_glue("Setting output path to {file.path(getwd(), output)}"))
     output <- file.path(getwd(), output)
   }
+
+  if (file.exists(file.path(output, "log"))) {
+    file.remove(file.path(output, "log"))
+  }
+  logger::log_appender(logger::appender_tee(file.path(output, "log")))
+
   if (!dir.exists(output)) {
     logger::log_info("Creating output dir")
     dir.create(output)
