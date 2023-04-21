@@ -296,6 +296,8 @@ itePipelines <- function(Z) {
 # @examples
 # estGrowthRate("tests/testthat/data/all_final_contigs.cov3", "tests/testthat/data/output", 10)
 # estGrowthRate("tests/testthat/data/all_final_contigs.cov3")
+#'
+#' @export
 estGrowthRate <- function(input, output, max_candidate_iter) {
   stopifnot(file.exists(input))
   if (missing(output)) {
