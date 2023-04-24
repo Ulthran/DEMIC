@@ -179,7 +179,7 @@ contig_pca <- function(X) {
 #' @importFrom stats cor.test
 #' @importFrom stats ks.test
 #' @importFrom stats p.adjust
-#' @importFrom logger logger::log_info
+#' @importFrom logger log_info
 pipeline <- function(Y, i) {
   logger::log_info("Starting pipeline run...")
 
@@ -248,7 +248,7 @@ pipeline <- function(Y, i) {
 #' @return final filtered samples, matrix of sample, contig and corrected coverages,
 #' filtered contigs with PC1 values, PC1 range, preliminary filtered samples
 #'
-#' @importFrom logger logger::log_info
+#' @importFrom logger log_info
 itePipelines <- function(Z) {
   logger::log_info("Starting pipeline iteration...")
   pipeline1 <- pipeline(Z, 1)
@@ -289,7 +289,7 @@ itePipelines <- function(Z) {
 #' @importFrom utils write.table
 #' @importFrom stats aggregate
 #' @importFrom stats prcomp
-#' @importFrom logger logger::log_info
+#' @importFrom logger log_info
 #' @importFrom logger log_appender
 #' @importFrom logger appender_file
 #'
