@@ -19,6 +19,7 @@ ks <- function(x) {
 #' @param sortValues a vector of sorted values
 #' @return a vector with all values following a uniform distribution
 selectAccordingToKSTest <- function(sortValues) {
+  logger::log_info(stringr::str_glue("Starting selectAccordingToKSTest on {sortValues}"))
   len <- length(sortValues)
   if (len < 10) {
     return(c(0, 0, FALSE))
