@@ -19,7 +19,7 @@ ks <- function(x) {
 #' @param sortValues a vector of sorted values
 #' @return a vector with all values following a uniform distribution
 selectAccordingToKSTest <- function(sortValues) {
-  logger::log_info(cat("Starting selectAccordingToKSTest on ", sortValues, sep = " "))
+  logger::log_info(stringr::str_glue("Starting selectAccordingToKSTest with length {paste(sortValues, collapse = ' ')}"))
   len <- length(sortValues)
   if (len < 10) {
     return(c(0, 0, FALSE))
@@ -326,6 +326,7 @@ estGrowthRate <- function(input, output, max_candidate_iter) {
   X <- read.csv(input, header = FALSE, stringsAsFactors = TRUE)
 
   colnames(X) <- c("logCov", "GC", "sample", "contig", "length")
+  logger::log_info(stringr::str_glue("Input dimensions: {paste(dim(X), collapse = ' ')}"))
 
   tag_permu <- 0
 
