@@ -19,7 +19,7 @@ ks <- function(x) {
 #' @param sortValues a vector of sorted values
 #' @return a vector with all values following a uniform distribution
 selectAccordingToKSTest <- function(sortValues) {
-  logger::log_info(stringr::str_glue("Starting selectAccordingToKSTest with length {paste(sortValues, collapse = ' ')}"))
+  logger::log_info(stringr::str_glue("Starting selectAccordingToKSTest with {paste(sortValues, collapse = ' ')}"))
   len <- length(sortValues)
   if (len < 10) {
     return(c(0, 0, FALSE))
@@ -211,6 +211,7 @@ pipeline <- function(Y, i) {
 
   # do PCA for contigs
   pca <- contig_pca(summeryMeanYSortFilterWide)
+  logger::log_info(stringr::str_glue("PCA: {paste(dim(pca), collapse = ' ')}"))
   ksResult <- ks.test(pca$PC1, "punif", min(pca$PC1), max(pca$PC1))
 
   # all good contigs follow uniform distribution
