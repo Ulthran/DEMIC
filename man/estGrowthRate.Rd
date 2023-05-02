@@ -4,7 +4,7 @@
 \alias{estGrowthRate}
 \title{Main function}
 \usage{
-estGrowthRate(input, output, max_candidate_iter)
+estGrowthRate(input, output, max_candidate_iter, log_level)
 }
 \arguments{
 \item{input}{path to the coverage matrix file in csv form (column names: "logCov", "GC", "sample", "contig", "length")}
@@ -12,6 +12,8 @@ estGrowthRate(input, output, max_candidate_iter)
 \item{output}{path to the output directory (default: "getwd()/output/")}
 
 \item{max_candidate_iter}{max allowed iterations for estimation of PTR (default: 10)}
+
+\item{log_level}{logger threshold \link{TRACE, DEBUG, INFO, WARN, ERROR} (default: INFO)}
 }
 \value{
 nothing, but outputs file with results

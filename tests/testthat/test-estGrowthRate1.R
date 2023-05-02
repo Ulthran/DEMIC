@@ -11,7 +11,7 @@
 test_that("DEMIC main function produces out.eptr on test set 2", {
   # tempdir <- normalizePath(tempdir())
   # estGrowthRate("data2/all_final_contigs.cov3", paste(tempdir, "output", sep="\\"))
-  estGrowthRate("data2/ContigCluster1.cov3", "data2/output")
+  estGrowthRate("data2/ContigCluster1.cov3", "data2/output", 10, DEBUG)
 
   O <- read.table(file = file.path("data2/output", "out.eptr"), sep = "\t", header = TRUE)
   O[, -1] <- round(O[, -1], 5)
@@ -20,7 +20,7 @@ test_that("DEMIC main function produces out.eptr on test set 2", {
   expect_equal(O, E)
 
 
-  estGrowthRate("data2/ContigCluster2.cov3", "data2/output")
+  estGrowthRate("data2/ContigCluster2.cov3", "data2/output", 10, DEBUG)
 
   O <- read.table(file = file.path("data2/output", "out.eptr"), sep = "\t", header = TRUE)
   O[, -1] <- round(O[, -1], 5)

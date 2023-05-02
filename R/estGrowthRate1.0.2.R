@@ -19,7 +19,7 @@ ks <- function(x) {
 #' @param sortValues a vector of sorted values
 #' @return a vector with all values following a uniform distribution
 selectAccordingToKSTest <- function(sortValues) {
-  logger::log_info(stringr::str_glue("Starting selectAccordingToKSTest with {paste(sortValues, collapse = ' ')}"))
+  logger::log_debug(stringr::str_glue("Starting selectAccordingToKSTest with {paste(sortValues, collapse = ' ')}"))
   len <- length(sortValues)
   if (len < 10) {
     return(c(0, 0, FALSE))
@@ -182,7 +182,7 @@ contig_pca <- function(X) {
 #' @importFrom stats p.adjust
 #' @importFrom logger log_info
 pipeline <- function(Y, i) {
-  logger::log_info("Starting pipeline run...")
+  logger::log_debug("Starting pipeline run...")
 
   lmeModel <- lme4::lmer(logCov ~ GC + (1 | sample:contig), data = Y, REML = FALSE)
   summeryMeanY <- aggregate(GC ~ (sample:contig), Y, FUN = "mean")
@@ -202,7 +202,7 @@ pipeline <- function(Y, i) {
   i <- 1
   Samples_filteredY <- filterSample(summeryMeanYSort2, 0, 1 / (3 - i))
   if (length(Samples_filteredY) < 2) {
-    logger::log_info("Too few (<2) samples with reliable coverages for the set of contigs")
+    logger::log_error("Too few (<2) samples with reliable coverages for the set of contigs")
     return("too few (<2) samples with reliable coverages for the set of contigs")
   }
 
@@ -211,7 +211,7 @@ pipeline <- function(Y, i) {
 
   # do PCA for contigs
   pca <- contig_pca(summeryMeanYSortFilterWide)
-  logger::log_info(stringr::str_glue("PCA: {paste(dim(pca), collapse = ' ')}"))
+  logger::log_debug(stringr::str_glue("PCA: {paste(dim(pca), collapse = ' ')}"))
   ksResult <- ks.test(pca$PC1, "punif", min(pca$PC1), max(pca$PC1))
 
   # all good contigs follow uniform distribution
@@ -220,7 +220,7 @@ pipeline <- function(Y, i) {
   if (range[3] == TRUE) {
     contigPCAPC1Filtered <- subset(pca, PC1 >= range[1] & PC1 <= range[2])
   } else {
-    logger::log_info("Cannot find a continuous set of contigs in uniform distribution")
+    logger::log_error("Cannot find a continuous set of contigs in uniform distribution")
     return("cannot find a continuous set of contigs in uniform distribution")
   }
   # largerClusterContig contains contigs within the range consistent with uniform distribution
@@ -252,7 +252,7 @@ pipeline <- function(Y, i) {
 #'
 #' @importFrom logger log_info
 itePipelines <- function(Z) {
-  logger::log_info("Starting pipeline iteration...")
+  logger::log_debug("Starting pipeline iteration...")
   pipeline1 <- pipeline(Z, 1)
   if (length(pipeline1) == 1) {
     return(pipeline1)
@@ -285,6 +285,7 @@ itePipelines <- function(Z) {
 #' @param input path to the coverage matrix file in csv form (column names: "logCov", "GC", "sample", "contig", "length")
 #' @param output path to the output directory (default: "getwd()/output/")
 #' @param max_candidate_iter max allowed iterations for estimation of PTR (default: 10)
+#' @param log_level logger threshold [TRACE, DEBUG, INFO, WARN, ERROR] (default: INFO)
 #' @returns nothing, but outputs file with results
 #'
 #' @importFrom utils read.csv
@@ -293,14 +294,15 @@ itePipelines <- function(Z) {
 #' @importFrom stats prcomp
 #' @importFrom logger log_info
 #' @importFrom logger log_appender
+#' @importFrom logger log_threshold
 #' @importFrom logger appender_file
 #'
 # @examples
-# estGrowthRate("tests/testthat/data/all_final_contigs.cov3", "tests/testthat/data/output", 10)
+# estGrowthRate("tests/testthat/data/all_final_contigs.cov3", "tests/testthat/data/output", 10, INFO)
 # estGrowthRate("tests/testthat/data/all_final_contigs.cov3")
 #'
 #' @export
-estGrowthRate <- function(input, output, max_candidate_iter) {
+estGrowthRate <- function(input, output, max_candidate_iter, log_level) {
   stopifnot(file.exists(input))
   if (missing(output)) {
     logger::log_info(stringr::str_glue("Setting output path to {file.path(getwd(), output)}"))
@@ -311,6 +313,11 @@ estGrowthRate <- function(input, output, max_candidate_iter) {
     file.remove(file.path(output, "log"))
   }
   logger::log_appender(logger::appender_tee(file.path(output, "log")))
+
+  if (missing(log_level)) {
+    log_level <- INFO
+  }
+  logger::log_threshold(log_level)
 
   if (!dir.exists(output)) {
     logger::log_info("Creating output dir")
