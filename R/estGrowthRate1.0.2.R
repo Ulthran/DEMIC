@@ -6,6 +6,7 @@
 
 library(logger)
 library(stringr)
+library(wrapr)
 
 #' A convenient function for KS test of uniform distribution
 #' @param x a vector without NA
@@ -302,33 +303,22 @@ itePipelines <- function(Z) {
 # estGrowthRate("tests/testthat/data/all_final_contigs.cov3")
 #'
 #' @export
-estGrowthRate <- function(input, output, max_candidate_iter, log_level) {
+estGrowthRate <- function(input, ..., output = file.path(getwd(), output), max_candidate_iter = 10, log_level = INFO) {
   stopifnot(file.exists(input))
-  if (missing(output)) {
-    logger::log_info(stringr::str_glue("Setting output path to {file.path(getwd(), output)}"))
-    output <- file.path(getwd(), output)
-  }
+  wrapr::stop_if_dot_args(substitute(list(...)), "estGrowthRate")
 
   if (file.exists(file.path(output, "log"))) {
     file.remove(file.path(output, "log"))
   }
   logger::log_appender(logger::appender_tee(file.path(output, "log")))
-
-  if (missing(log_level)) {
-    log_level <- INFO
-  }
   logger::log_threshold(log_level)
 
   if (!dir.exists(output)) {
     logger::log_info("Creating output dir")
     dir.create(output)
   }
-  if (missing(max_candidate_iter)) {
-    logger::log_info("Setting max_candidate_iter to default (10)")
-    max_candidate_iter <- 10
-  }
 
-  logger::log_info("Starting DEMIC...")
+  logger::log_info(stringr::str_glue("Starting DEMIC...\ninput: {input}\noutput: {output}\nmax_candidate_iter: {max_candidate_iter}\nlog_level: {log_level}"))
 
   # Load matrix of .cov3 and rename the heads
   X <- read.csv(input, header = FALSE, stringsAsFactors = TRUE)

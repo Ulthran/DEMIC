@@ -4,7 +4,13 @@
 \alias{estGrowthRate}
 \title{Main function}
 \usage{
-estGrowthRate(input, output, max_candidate_iter, log_level)
+estGrowthRate(
+  input,
+  ...,
+  output = file.path(getwd(), output),
+  max_candidate_iter = 10,
+  log_level = INFO
+)
 }
 \arguments{
 \item{input}{path to the coverage matrix file in csv form (column names: "logCov", "GC", "sample", "contig", "length")}
