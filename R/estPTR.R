@@ -244,16 +244,14 @@ samplesPipeline <- function(X, Y) {
 #' @importFrom logger log_appender
 #' @importFrom logger log_threshold
 #' @importFrom logger appender_tee
-#' @importFrom wrapr stop_if_dot_args
 #'
 # @examples
 # estPTR("tests/testthat/data/all_final_contigs.cov3", "tests/testthat/data/output", 10, INFO)
 # estPTR("tests/testthat/data/all_final_contigs.cov3")
 #'
 #' @export
-estPTR <- function(input, ..., output = file.path(getwd(), output), max_candidate_iter = 10, log_level = INFO) {
+estPTR <- function(input, output = file.path(getwd(), output), max_candidate_iter = 10, log_level = INFO, ...) {
   stopifnot(file.exists(input))
-  wrapr::stop_if_dot_args(substitute(list(...)), "estGrowthRate")
 
   if (file.exists(file.path(output, "log"))) {
     file.remove(file.path(output, "log"))

@@ -6,10 +6,10 @@
 \usage{
 estPTR(
   input,
-  ...,
   output = file.path(getwd(), output),
   max_candidate_iter = 10,
-  log_level = INFO
+  log_level = INFO,
+  ...
 )
 }
 \arguments{
