@@ -1,107 +1,113 @@
 source("R/utils.R")
 
 #' Attempt the default iteration for contigs
+#' Requires at least 20 contigs and 3 samples
 #'
 #' @param X cov3 matrix as a dataframe
 #' @return estPTRs matrix on success, NULL otherwise
 contigsPipeline <- function(X) {
-  if (length(levels(X$contig)) >= 20 & length(levels(X$sample)) >= 3) {
-    logger::log_info("Attempting default iteration for contigs")
-    cor_cutoff <- 0.98
-    max_cor <- 0
-    for (s2 in 1:3) {
-      if (s2 == 2) {
-        if (max_cor < 0.9) {
-          logger::log_warn(stringr::str_glue("Max correlation is less than 0.9 ({max_cor}), ending contigsPipeline"))
-          return(NULL)
-        } else if (max_cor < 0.95) {
-          cor_cutoff <- 0.95
-        }
+  if (length(levels(X$contig)) < 20 | length(levels(X$sample)) < 3) {
+    return(NULL)
+  }
+  cor_cutoff <- 0.98
+  max_cor <- 0
+  for (s2 in 1:3) {
+    if (s2 == 2) {
+      if (max_cor < 0.9) {
+        return(NULL)
+      } else if (max_cor < 0.95) {
+        cor_cutoff <- 0.95
       }
+    }
 
-      nrm <- floor(length(levels(X$contig)) / 5)
-      set.seed(s2)
-      designateR2 <- sample.int(10000, size = length(levels(X$contig)), replace = FALSE)
-      ContigDesignateR2 <- data.frame("Contig" = levels(X$contig), "number" = designateR2)
-      ContigDesignateRSort2 <- ContigDesignateR2[order(ContigDesignateR2[, 2]), ]
-      nacontig_id <- NULL
-      for (x in 1:4) {
-        for (y in (x + 1):5) {
-          if (x %in% nacontig_id) {
-            logger::log_warn(stringr::str_glue("{x} is %in% {nacontig_id}, ending contigsPipeline"))
+    nrm <- floor(length(levels(X$contig)) / 5)
+    set.seed(s2)
+    designateR2 <- sample.int(10000, size = length(levels(X$contig)), replace = FALSE)
+    ContigDesignateR2 <- data.frame("Contig" = levels(X$contig), "number" = designateR2)
+    ContigDesignateRSort2 <- ContigDesignateR2[order(ContigDesignateR2[, 2]), ]
+    nacontig_id <- NULL
+    for (x in 1:4) {
+      for (y in (x + 1):5) {
+        if (x %in% nacontig_id) {
+          return(NULL)
+        }
+        if (y %in% nacontig_id) {
+          next
+        }
+        ContigDesignateRemove1 <- ContigDesignateRSort2[(nrm * (x - 1) + 1):(nrm * x), 1]
+        ContigDesignateRemove2 <- ContigDesignateRSort2[(nrm * (y - 1) + 1):(nrm * y), 1]
+
+        pipelineX1 <- itePipelines(X[!X$contig %in% ContigDesignateRemove1, ])
+        if (length(pipelineX1) == 1) {
+          return(NULL)
+        }
+        pipelineX2 <- itePipelines(X[!X$contig %in% ContigDesignateRemove2, ])
+        if (length(pipelineX2) == 1) {
+          nacontig_id <- c(nacontig_id, y)
+          next
+        }
+        Samples_filteredXrm1 <- pipelineX1[[1]]
+        summeryMeanYSortFilteredSampleContigXrm1 <- pipelineX1[[2]]
+        contigPCAPC1FilteredXrm1 <- pipelineX1[[3]]
+        rangeXrm1 <- pipelineX1[[4]]
+
+        Samples_filteredXrm2 <- pipelineX2[[1]]
+        summeryMeanYSortFilteredSampleContigXrm2 <- pipelineX2[[2]]
+        contigPCAPC1FilteredXrm2 <- pipelineX2[[3]]
+        rangeXrm2 <- pipelineX2[[4]]
+        if (length(contigPCAPC1FilteredXrm1$contig) - length(intersect(contigPCAPC1FilteredXrm1$contig, contigPCAPC1FilteredXrm2$contig)) < 3 | length(contigPCAPC1FilteredXrm2$contig) - length(intersect(contigPCAPC1FilteredXrm1$contig, contigPCAPC1FilteredXrm2$contig)) < 3) {
+          next
+        }
+
+        SampleCorrectYWithPC1 <- merge(reshape2::dcast(subset(summeryMeanYSortFilteredSampleContigXrm1, select = c("sample", "contig", "correctY")), contig ~ sample), contigPCAPC1FilteredXrm1)
+
+        lmModelCo <- apply(subset(SampleCorrectYWithPC1, select = -c(contig, PC1)), 2, lmColumn, y = SampleCorrectYWithPC1$PC1)
+        cor_model <- apply(subset(SampleCorrectYWithPC1, select = -c(contig, PC1)), 2, function(x) cor.test(SampleCorrectYWithPC1$PC1, x)$estimate)
+
+        estPTRs <- data.frame("estPTR" = 2^abs(lmModelCo[1, ] * (rangeXrm1[1] - rangeXrm1[2])), "coefficient" = lmModelCo[1, ], "pValue" = lmModelCo[2, ], "cor" = cor_model)
+        estPTRs$sample <- rownames(estPTRs)
+        estPTRsEach1 <- merge(estPTRs, aggregate(correctY ~ sample, summeryMeanYSortFilteredSampleContigXrm1, FUN = "median"), by = "sample")
+
+        SampleCorrectYWithPC1 <- merge(reshape2::dcast(subset(summeryMeanYSortFilteredSampleContigXrm2, select = c("sample", "contig", "correctY")), contig ~ sample), contigPCAPC1FilteredXrm2)
+
+        lmModelCo <- apply(subset(SampleCorrectYWithPC1, select = -c(contig, PC1)), 2, lmColumn, y = SampleCorrectYWithPC1$PC1)
+        cor_model <- apply(subset(SampleCorrectYWithPC1, select = -c(contig, PC1)), 2, function(x) cor.test(SampleCorrectYWithPC1$PC1, x)$estimate)
+
+        estPTRs <- data.frame("estPTR" = 2^abs(lmModelCo[1, ] * (rangeXrm2[1] - rangeXrm2[2])), "coefficient" = lmModelCo[1, ], "pValue" = lmModelCo[2, ], "cor" = cor_model)
+        estPTRs$sample <- rownames(estPTRs)
+        estPTRsEach2 <- merge(estPTRs, aggregate(correctY ~ sample, summeryMeanYSortFilteredSampleContigXrm2, FUN = "median"), by = "sample")
+
+        minor_sample1 <- cor_diff(estPTRsEach1)
+        minor_sample2 <- cor_diff(estPTRsEach2)
+        if ((length(minor_sample1) > 0 & length(minor_sample2) > 0) | (max(estPTRsEach1$estPTR) < 1.8 & max(estPTRsEach2$estPTR) < 1.8) | (max(estPTRsEach1$estPTR) / min(estPTRsEach1$estPTR) > 5 & max(estPTRsEach2$estPTR) / min(estPTRsEach2$estPTR) > 5)) {
+          next
+        }
+
+        estPTRsEach12 <- merge(estPTRsEach1, estPTRsEach2, by = "sample")
+
+        if (nrow(estPTRsEach12) > 0.9 * max(c(nrow(estPTRsEach1), nrow(estPTRsEach2)))) {
+          if (var(estPTRsEach12$estPTR.x) == 0 || var(estPTRsEach12$estPTR.y) == 0) {
+            estPTRsEach12$estPTR.x <- jitter(estPTRsEach12$estPTR.x)
+            estPTRsEach12$estPTR.y <- jitter(estPTRsEach12$estPTR.y)
+          }
+          cor_current <- cor(estPTRsEach12$estPTR.x, estPTRsEach12$estPTR.y)
+          if (is.na(cor_current)) {
             return(NULL)
           }
-          if (y %in% nacontig_id) {
-            next
-          }
-          ContigDesignateRemove1 <- ContigDesignateRSort2[(nrm * (x - 1) + 1):(nrm * x), 1]
-          ContigDesignateRemove2 <- ContigDesignateRSort2[(nrm * (y - 1) + 1):(nrm * y), 1]
-
-          pipelineX1 <- itePipelines(X[!X$contig %in% ContigDesignateRemove1, ])
-          if (length(pipelineX1) == 1) {
-            logger::log_warn(stringr::str_glue("{pipelineX1} only has one element, ending contigsPipeline"))
-            return(NULL)
-          }
-          pipelineX2 <- itePipelines(X[!X$contig %in% ContigDesignateRemove2, ])
-          if (length(pipelineX2) == 1) {
-            nacontig_id <- c(nacontig_id, y)
-            next
-          }
-          Samples_filteredXrm1 <- pipelineX1[[1]]
-          summeryMeanYSortFilteredSampleContigXrm1 <- pipelineX1[[2]]
-          contigPCAPC1FilteredXrm1 <- pipelineX1[[3]]
-          rangeXrm1 <- pipelineX1[[4]]
-
-          Samples_filteredXrm2 <- pipelineX2[[1]]
-          summeryMeanYSortFilteredSampleContigXrm2 <- pipelineX2[[2]]
-          contigPCAPC1FilteredXrm2 <- pipelineX2[[3]]
-          rangeXrm2 <- pipelineX2[[4]]
-          if (length(contigPCAPC1FilteredXrm1$contig) - length(intersect(contigPCAPC1FilteredXrm1$contig, contigPCAPC1FilteredXrm2$contig)) < 3 | length(contigPCAPC1FilteredXrm2$contig) - length(intersect(contigPCAPC1FilteredXrm1$contig, contigPCAPC1FilteredXrm2$contig)) < 3) {
-            next
+          if (cor_current > max_cor) {
+            max_cor <- cor_current
           }
 
-          SampleCorrectYWithPC1 <- merge(reshape2::dcast(subset(summeryMeanYSortFilteredSampleContigXrm1, select = c("sample", "contig", "correctY")), contig ~ sample), contigPCAPC1FilteredXrm1)
+          if (cor(estPTRsEach12$estPTR.x, estPTRsEach12$estPTR.y) > cor_cutoff) {
+            dput(estPTRsEach12)
+            estPTRsEach12$estPTR <- apply(subset(estPTRsEach12, select = c("estPTR.x", "estPTR.y")), 1, mean)
+            estPTRsEach12$coefficient <- apply(subset(estPTRsEach12, select = c("coefficient.x", "coefficient.y")), 1, function(x) mean(abs(x)))
+            estPTRsEach12$pValue <- apply(subset(estPTRsEach12, select = c("pValue.x", "pValue.y")), 1, max)
+            estPTRsEach12$cor <- apply(subset(estPTRsEach12, select = c("cor.x", "cor.y")), 1, function(x) mean(abs(x)))
+            estPTRsEach12$correctY <- apply(subset(estPTRsEach12, select = c("correctY.x", "correctY.y")), 1, mean)
 
-          lmModelCo <- apply(subset(SampleCorrectYWithPC1, select = -c(contig, PC1)), 2, lmColumn, y = SampleCorrectYWithPC1$PC1)
-          cor_model <- apply(subset(SampleCorrectYWithPC1, select = -c(contig, PC1)), 2, function(x) cor.test(SampleCorrectYWithPC1$PC1, x)$estimate)
-
-          estPTRs <- data.frame("estPTR" = 2^abs(lmModelCo[1, ] * (rangeXrm1[1] - rangeXrm1[2])), "coefficient" = lmModelCo[1, ], "pValue" = lmModelCo[2, ], "cor" = cor_model)
-          estPTRs$sample <- rownames(estPTRs)
-          estPTRsEach1 <- merge(estPTRs, aggregate(correctY ~ sample, summeryMeanYSortFilteredSampleContigXrm1, FUN = "median"), by = "sample")
-
-          SampleCorrectYWithPC1 <- merge(reshape2::dcast(subset(summeryMeanYSortFilteredSampleContigXrm2, select = c("sample", "contig", "correctY")), contig ~ sample), contigPCAPC1FilteredXrm2)
-
-          lmModelCo <- apply(subset(SampleCorrectYWithPC1, select = -c(contig, PC1)), 2, lmColumn, y = SampleCorrectYWithPC1$PC1)
-          cor_model <- apply(subset(SampleCorrectYWithPC1, select = -c(contig, PC1)), 2, function(x) cor.test(SampleCorrectYWithPC1$PC1, x)$estimate)
-
-          estPTRs <- data.frame("estPTR" = 2^abs(lmModelCo[1, ] * (rangeXrm2[1] - rangeXrm2[2])), "coefficient" = lmModelCo[1, ], "pValue" = lmModelCo[2, ], "cor" = cor_model)
-          estPTRs$sample <- rownames(estPTRs)
-          estPTRsEach2 <- merge(estPTRs, aggregate(correctY ~ sample, summeryMeanYSortFilteredSampleContigXrm2, FUN = "median"), by = "sample")
-
-          minor_sample1 <- cor_diff(estPTRsEach1)
-          minor_sample2 <- cor_diff(estPTRsEach2)
-          if ((length(minor_sample1) > 0 & length(minor_sample2) > 0) | (max(estPTRsEach1$estPTR) < 1.8 & max(estPTRsEach2$estPTR) < 1.8) | (max(estPTRsEach1$estPTR) / min(estPTRsEach1$estPTR) > 5 & max(estPTRsEach2$estPTR) / min(estPTRsEach2$estPTR) > 5)) {
-            next
-          }
-
-          estPTRsEach12 <- merge(estPTRsEach1, estPTRsEach2, by = "sample")
-
-          if (nrow(estPTRsEach12) > 0.9 * nrow(estPTRsEach1) & nrow(estPTRsEach12) > 0.9 * nrow(estPTRsEach2)) {
-            cor_current <- cor(estPTRsEach12$estPTR.x, estPTRsEach12$estPTR.y)
-            if (cor_current > max_cor) {
-              max_cor <- cor_current
-            }
-
-            if (cor(estPTRsEach12$estPTR.x, estPTRsEach12$estPTR.y) > cor_cutoff) {
-              estPTRsEach12$estPTR <- apply(subset(estPTRsEach12, select = c("estPTR.x", "estPTR.y")), 1, mean)
-              estPTRsEach12$coefficient <- apply(subset(estPTRsEach12, select = c("coefficient.x", "coefficient.y")), 1, function(x) mean(abs(x)))
-              estPTRsEach12$pValue <- apply(subset(estPTRsEach12, select = c("pValue.x", "pValue.y")), 1, max)
-              estPTRsEach12$cor <- apply(subset(estPTRsEach12, select = c("cor.x", "cor.y")), 1, function(x) mean(abs(x)))
-              estPTRsEach12$correctY <- apply(subset(estPTRsEach12, select = c("correctY.x", "correctY.y")), 1, mean)
-
-              estPTRs2 <- subset(estPTRsEach12, select = c("sample", "estPTR", "coefficient", "pValue", "cor", "correctY"))
-              return(estPTRs2)
-            }
+            estPTRs2 <- subset(estPTRsEach12, select = c("sample", "estPTR", "coefficient", "pValue", "cor", "correctY"))
+            return(estPTRs2)
           }
         }
       }
@@ -110,10 +116,8 @@ contigsPipeline <- function(X) {
 }
 
 # Attempt alternative iteration for samples
-samplesPipeline <- function(X, Y) {
-  if (tag_permu == 0) {
-    logger::log_info("Attempting alternative iteration for samples")
-    pipelineY <- itePipelines(Y)
+samplesPipeline <- function(X) {
+    pipelineY <- itePipelines(X)
     if (length(pipelineY) == 1) {
       stop("pipelineY failed")
     }
@@ -225,68 +229,26 @@ samplesPipeline <- function(X, Y) {
     } else {
       stop("fail to calculate consistent PTRs!")
     }
-  }
 }
 
 #' Main function
 #'
-#' @param input path to the coverage matrix file in csv form (column names: "logCov", "GC", "sample", "contig", "length")
-#' @param output path to the output directory (default: "getwd()/output/")
+#' @param X dataframe with coverage matrix (column names: "logCov", "GC", "sample", "contig", "length")
 #' @param max_candidate_iter max allowed iterations for estimation of PTR (default: 10)
-#' @param log_level logger threshold [TRACE, DEBUG, INFO, WARN, ERROR] (default: INFO)
-#' @returns nothing, but creates file with results
-#'
-#' @importFrom utils read.csv
-#' @importFrom utils write.table
-#' @importFrom stats aggregate
-#' @importFrom stats prcomp
-#' @importFrom logger log_info
-#' @importFrom logger log_appender
-#' @importFrom logger log_threshold
-#' @importFrom logger appender_tee
+#' @returns dataframe with the estimated PTRs (column names: "estPTR", "coefficient", "pValue", "cor", "correctY")
 #'
 # @examples
-# estPTR("tests/testthat/data/all_final_contigs.cov3", "tests/testthat/data/output", 10, INFO)
-# estPTR("tests/testthat/data/all_final_contigs.cov3")
+# X <- read.csv("data/ContigCluster1.cov3", header = FALSE, stringsAsFactors = TRUE)
+# colnames(X) <- c("logCov", "GC", "sample", "contig", "length")
+# estPTR(X)
 #'
 #' @export
-estPTR <- function(input, output = file.path(getwd(), output), max_candidate_iter = 10, log_level = INFO, ...) {
-  stopifnot(file.exists(input))
-
-  if (file.exists(file.path(output, "log"))) {
-    file.remove(file.path(output, "log"))
-  }
-  logger::log_appender(logger::appender_tee(file.path(output, "log")))
-  logger::log_threshold(log_level)
-
-  if (!dir.exists(output)) {
-    logger::log_info("Creating output dir")
-    dir.create(output)
-  }
-
-  logger::log_info(stringr::str_glue("Starting DEMIC...\ninput: {input}\noutput: {output}\nmax_candidate_iter: {max_candidate_iter}\nlog_level: {log_level}"))
-
-  # Load matrix of .cov3 and rename the heads
-  X <- read.csv(input, header = FALSE, stringsAsFactors = TRUE)
-
-  colnames(X) <- c("logCov", "GC", "sample", "contig", "length")
-  logger::log_info(stringr::str_glue("Input dimensions: {paste(dim(X), collapse = ' ')}"))
-
-  save.image(file.path(output, "savepoint_demic.RData"))
-  logger::log_info(stringr::str_glue("Saved image to {file.path(output, 'savepoint_demic.RData')}"))
-
-  estPTRs <- contigsPipeline(X)
+estPTR <- function(X, max_candidate_iter = 10, ...) {
+  estPTRs <- suppressWarnings({contigsPipeline(X)})
   if (is.null(estPTRs)) {
-    estPTRs <- samplesPipeline(X, Y)
-  }
-  if (is.null(estPTRs)) {
-    stop("Could not estimate PTRs")
+    Y <- X
+    estPTRs <- samplesPipeline(Y)
   }
 
-  # Output to .eptr
-  logger::log_info(stringr::str_glue("Writing output to {file.path(output, 'out.eptr')}"))
-  final_output <- file.path(output, "out.eptr")
-  write.table(estPTRs, file = final_output, sep = "\t", quote = FALSE)
-
-  save.image(file.path(output, "finished_demic.RData"))
+  estPTRs
 }

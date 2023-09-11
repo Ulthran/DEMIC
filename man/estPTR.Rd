@@ -4,25 +4,15 @@
 \alias{estPTR}
 \title{Main function}
 \usage{
-estPTR(
-  input,
-  output = file.path(getwd(), output),
-  max_candidate_iter = 10,
-  log_level = INFO,
-  ...
-)
+estPTR(X, max_candidate_iter = 10, ...)
 }
 \arguments{
-\item{input}{path to the coverage matrix file in csv form (column names: "logCov", "GC", "sample", "contig", "length")}
-
-\item{output}{path to the output directory (default: "getwd()/output/")}
+\item{X}{dataframe with coverage matrix (column names: "logCov", "GC", "sample", "contig", "length")}
 
 \item{max_candidate_iter}{max allowed iterations for estimation of PTR (default: 10)}
-
-\item{log_level}{logger threshold \link{TRACE, DEBUG, INFO, WARN, ERROR} (default: INFO)}
 }
 \value{
-nothing, but creates file with results
+dataframe with the estimated PTRs (column names: "estPTR", "coefficient", "pValue", "cor", "correctY")
 }
 \description{
 Main function

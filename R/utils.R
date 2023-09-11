@@ -17,7 +17,6 @@ ks <- function(x) {
 #' @param sortValues a vector of sorted values
 #' @return a vector with all values following a uniform distribution
 selectAccordingToKSTest <- function(sortValues) {
-  logger::log_debug(stringr::str_glue("Starting selectAccordingToKSTest with {paste(sortValues, collapse = ' ')}"))
   len <- length(sortValues)
   if (len < 10) {
     return(c(0, 0, FALSE))
@@ -178,10 +177,7 @@ contig_pca <- function(X) {
 #' @importFrom stats cor.test
 #' @importFrom stats ks.test
 #' @importFrom stats p.adjust
-#' @importFrom logger log_info
 pipeline <- function(Y, i) {
-  logger::log_debug("Starting pipeline run...")
-
   lmeModel <- lme4::lmer(logCov ~ GC + (1 | sample:contig), data = Y, REML = FALSE)
   summeryMeanY <- aggregate(GC ~ (sample:contig), Y, FUN = "mean")
   summeryMeanY$s_c <- paste(summeryMeanY$sample, summeryMeanY$contig, sep = ":")
@@ -200,7 +196,6 @@ pipeline <- function(Y, i) {
   i <- 1
   Samples_filteredY <- filterSample(summeryMeanYSort2, 0, 1 / (3 - i))
   if (length(Samples_filteredY) < 2) {
-    logger::log_error("Too few (<2) samples with reliable coverages for the set of contigs")
     return("too few (<2) samples with reliable coverages for the set of contigs")
   }
 
@@ -209,7 +204,6 @@ pipeline <- function(Y, i) {
 
   # do PCA for contigs
   pca <- contig_pca(summeryMeanYSortFilterWide)
-  logger::log_debug(stringr::str_glue("PCA: {paste(dim(pca), collapse = ' ')}"))
   ksResult <- ks.test(pca$PC1, "punif", min(pca$PC1), max(pca$PC1))
 
   # all good contigs follow uniform distribution
@@ -218,7 +212,6 @@ pipeline <- function(Y, i) {
   if (range[3] == TRUE) {
     contigPCAPC1Filtered <- subset(pca, PC1 >= range[1] & PC1 <= range[2])
   } else {
-    logger::log_error("Cannot find a continuous set of contigs in uniform distribution")
     return("cannot find a continuous set of contigs in uniform distribution")
   }
   # largerClusterContig contains contigs within the range consistent with uniform distribution
@@ -247,10 +240,7 @@ pipeline <- function(Y, i) {
 #' @param Z a matrix of coverages
 #' @return final filtered samples, matrix of sample, contig and corrected coverages,
 #' filtered contigs with PC1 values, PC1 range, preliminary filtered samples
-#'
-#' @importFrom logger log_info
 itePipelines <- function(Z) {
-  logger::log_debug("Starting pipeline iteration...")
   pipeline1 <- pipeline(Z, 1)
   if (length(pipeline1) == 1) {
     return(pipeline1)
