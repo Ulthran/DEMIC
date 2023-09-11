@@ -117,118 +117,118 @@ contigsPipeline <- function(X) {
 
 # Attempt alternative iteration for samples
 samplesPipeline <- function(X) {
-    pipelineY <- itePipelines(X)
-    if (length(pipelineY) == 1) {
-      stop("pipelineY failed")
-    }
-    Samples_filtered1 <- pipelineY[[1]]
-    summeryMeanYSortFilteredSampleContig1 <- pipelineY[[2]]
-    contigPCAPC1Filtered1 <- pipelineY[[3]]
-    range1 <- pipelineY[[4]]
-    Samples_filteredY1 <- pipelineY[[5]]
+  pipelineY <- itePipelines(X)
+  if (length(pipelineY) == 1) {
+    stop("pipelineY failed")
+  }
+  Samples_filtered1 <- pipelineY[[1]]
+  summeryMeanYSortFilteredSampleContig1 <- pipelineY[[2]]
+  contigPCAPC1Filtered1 <- pipelineY[[3]]
+  range1 <- pipelineY[[4]]
+  Samples_filteredY1 <- pipelineY[[5]]
 
-    SampleCorrectYWithPC1 <- merge(reshape2::dcast(subset(summeryMeanYSortFilteredSampleContig1, select = c("sample", "contig", "correctY")), contig ~ sample), contigPCAPC1Filtered1)
+  SampleCorrectYWithPC1 <- merge(reshape2::dcast(subset(summeryMeanYSortFilteredSampleContig1, select = c("sample", "contig", "correctY")), contig ~ sample), contigPCAPC1Filtered1)
 
-    lmModelCo <- apply(subset(SampleCorrectYWithPC1, select = -c(contig, PC1)), 2, lmColumn, y = SampleCorrectYWithPC1$PC1)
-    cor_model <- apply(subset(SampleCorrectYWithPC1, select = -c(contig, PC1)), 2, function(x) cor.test(SampleCorrectYWithPC1$PC1, x)$estimate)
+  lmModelCo <- apply(subset(SampleCorrectYWithPC1, select = -c(contig, PC1)), 2, lmColumn, y = SampleCorrectYWithPC1$PC1)
+  cor_model <- apply(subset(SampleCorrectYWithPC1, select = -c(contig, PC1)), 2, function(x) cor.test(SampleCorrectYWithPC1$PC1, x)$estimate)
 
-    estPTRs <- data.frame("estPTR" = 2^abs(lmModelCo[1, ] * (range1[1] - range1[2])), "coefficient" = lmModelCo[1, ], "pValue" = lmModelCo[2, ], "cor" = cor_model)
-    estPTRs$sample <- rownames(estPTRs)
-    estPTRs3 <- merge(estPTRs, aggregate(correctY ~ sample, summeryMeanYSortFilteredSampleContig1, FUN = "median"), by = "sample")
+  estPTRs <- data.frame("estPTR" = 2^abs(lmModelCo[1, ] * (range1[1] - range1[2])), "coefficient" = lmModelCo[1, ], "pValue" = lmModelCo[2, ], "cor" = cor_model)
+  estPTRs$sample <- rownames(estPTRs)
+  estPTRs3 <- merge(estPTRs, aggregate(correctY ~ sample, summeryMeanYSortFilteredSampleContig1, FUN = "median"), by = "sample")
 
-    minor_sample3 <- cor_diff(estPTRs3)
+  minor_sample3 <- cor_diff(estPTRs3)
 
-    if (length(minor_sample3) == 0 & max(estPTRs3$estPTR) >= 1.8 & max(estPTRs3$estPTR) / min(estPTRs3$estPTR) <= 5) {
-      estPTRs2 <- estPTRs3
-    } else if ((length(minor_sample3) > 0 | max(estPTRs3$estPTR) < 1.8 | max(estPTRs3$estPTR) / min(estPTRs3$estPTR) > 5) & length(Samples_filteredY1) >= 6) {
-      estPTRfinal <- NULL
-      for (s in 1:max_candidate_iter) {
-        set.seed(s)
-        designateR <- sample.int(10000, size = length(Samples_filteredY1), replace = FALSE)
-        SampleDesignateR <- data.frame("Sample" = Samples_filteredY1, "number" = designateR)
-        SampleDesignateRSort <- SampleDesignateR[order(SampleDesignateR[, 2]), ]
-        selectSamples <- NULL
-        pipelineX <- NULL
-        estPTRsEach <- NULL
-        Samples_filteredX <- NULL
-        for (q in 0:2) {
-          selectSamples[[q + 1]] <- SampleDesignateRSort[(1:length(Samples_filteredY1)) %% 3 == q, ]$Sample
+  if (length(minor_sample3) == 0 & max(estPTRs3$estPTR) >= 1.8 & max(estPTRs3$estPTR) / min(estPTRs3$estPTR) <= 5) {
+    estPTRs2 <- estPTRs3
+  } else if ((length(minor_sample3) > 0 | max(estPTRs3$estPTR) < 1.8 | max(estPTRs3$estPTR) / min(estPTRs3$estPTR) > 5) & length(Samples_filteredY1) >= 6) {
+    estPTRfinal <- NULL
+    for (s in 1:max_candidate_iter) {
+      set.seed(s)
+      designateR <- sample.int(10000, size = length(Samples_filteredY1), replace = FALSE)
+      SampleDesignateR <- data.frame("Sample" = Samples_filteredY1, "number" = designateR)
+      SampleDesignateRSort <- SampleDesignateR[order(SampleDesignateR[, 2]), ]
+      selectSamples <- NULL
+      pipelineX <- NULL
+      estPTRsEach <- NULL
+      Samples_filteredX <- NULL
+      for (q in 0:2) {
+        selectSamples[[q + 1]] <- SampleDesignateRSort[(1:length(Samples_filteredY1)) %% 3 == q, ]$Sample
 
-          pipelineX <- itePipelines(X[!X$sample %in% selectSamples[[q + 1]], ])
-          if (length(pipelineX) == 1) {
-            break
-          }
-          Samples_filteredX[[q + 1]] <- pipelineX[[1]]
-          summeryMeanYSortFilteredSampleContigX <- pipelineX[[2]]
-          contigPCAPC1FilteredX <- pipelineX[[3]]
-          rangeX <- pipelineX[[4]]
-
-          SampleCorrectYWithPC1 <- merge(reshape2::dcast(subset(summeryMeanYSortFilteredSampleContigX, select = c("sample", "contig", "correctY")), contig ~ sample), contigPCAPC1FilteredX)
-
-          lmModelCo <- apply(subset(SampleCorrectYWithPC1, select = -c(contig, PC1)), 2, lmColumn, y = SampleCorrectYWithPC1$PC1)
-          cor_model <- apply(subset(SampleCorrectYWithPC1, select = -c(contig, PC1)), 2, function(x) cor.test(SampleCorrectYWithPC1$PC1, x)$estimate)
-
-          estPTRs <- data.frame("estPTR" = 2^abs(lmModelCo[1, ] * (rangeX[1] - rangeX[2])), "coefficient" = lmModelCo[1, ], "pValue" = lmModelCo[2, ], "cor" = cor_model)
-          estPTRs$sample <- rownames(estPTRs)
-          estPTRsEach[[q + 1]] <- merge(estPTRs, aggregate(correctY ~ sample, summeryMeanYSortFilteredSampleContig1, FUN = "median"), by = "sample")
+        pipelineX <- itePipelines(X[!X$sample %in% selectSamples[[q + 1]], ])
+        if (length(pipelineX) == 1) {
+          break
         }
-        if (length(estPTRsEach) < 3) {
-          next
-        }
-        qmax <- NULL
-        rmax <- NULL
-        estPTRsIntBest <- NULL
-        cormax <- 0
-        for (q in 0:1) {
-          for (r in (q + 1):2) {
-            estPTRsq <- estPTRsEach[[q + 1]]
-            estPTRsr <- estPTRsEach[[r + 1]]
-            intSamples <- intersect(setdiff(Samples_filteredY1, selectSamples[[q + 1]]), setdiff(Samples_filteredY1, selectSamples[[r + 1]]))
-            estPTRsInt <- merge(estPTRsq[estPTRsq$sample %in% intSamples, c("sample", "estPTR")], estPTRsr[estPTRsr$sample %in% intSamples, c("sample", "estPTR")], by = "sample")
-            minor_sample_q <- cor_diff(estPTRsq)
-            minor_sample_r <- cor_diff(estPTRsr)
+        Samples_filteredX[[q + 1]] <- pipelineX[[1]]
+        summeryMeanYSortFilteredSampleContigX <- pipelineX[[2]]
+        contigPCAPC1FilteredX <- pipelineX[[3]]
+        rangeX <- pipelineX[[4]]
 
-            corqr <- cor(estPTRsInt[, 3], estPTRsInt[, 2])
-            if (corqr > cormax & length(minor_sample_q) == 0 & length(minor_sample_r) == 0) {
-              cormax <- corqr
-              qmax <- estPTRsq
-              rmax <- estPTRsr
-              estPTRsIntBest <- estPTRsInt
-            }
+        SampleCorrectYWithPC1 <- merge(reshape2::dcast(subset(summeryMeanYSortFilteredSampleContigX, select = c("sample", "contig", "correctY")), contig ~ sample), contigPCAPC1FilteredX)
+
+        lmModelCo <- apply(subset(SampleCorrectYWithPC1, select = -c(contig, PC1)), 2, lmColumn, y = SampleCorrectYWithPC1$PC1)
+        cor_model <- apply(subset(SampleCorrectYWithPC1, select = -c(contig, PC1)), 2, function(x) cor.test(SampleCorrectYWithPC1$PC1, x)$estimate)
+
+        estPTRs <- data.frame("estPTR" = 2^abs(lmModelCo[1, ] * (rangeX[1] - rangeX[2])), "coefficient" = lmModelCo[1, ], "pValue" = lmModelCo[2, ], "cor" = cor_model)
+        estPTRs$sample <- rownames(estPTRs)
+        estPTRsEach[[q + 1]] <- merge(estPTRs, aggregate(correctY ~ sample, summeryMeanYSortFilteredSampleContig1, FUN = "median"), by = "sample")
+      }
+      if (length(estPTRsEach) < 3) {
+        next
+      }
+      qmax <- NULL
+      rmax <- NULL
+      estPTRsIntBest <- NULL
+      cormax <- 0
+      for (q in 0:1) {
+        for (r in (q + 1):2) {
+          estPTRsq <- estPTRsEach[[q + 1]]
+          estPTRsr <- estPTRsEach[[r + 1]]
+          intSamples <- intersect(setdiff(Samples_filteredY1, selectSamples[[q + 1]]), setdiff(Samples_filteredY1, selectSamples[[r + 1]]))
+          estPTRsInt <- merge(estPTRsq[estPTRsq$sample %in% intSamples, c("sample", "estPTR")], estPTRsr[estPTRsr$sample %in% intSamples, c("sample", "estPTR")], by = "sample")
+          minor_sample_q <- cor_diff(estPTRsq)
+          minor_sample_r <- cor_diff(estPTRsr)
+
+          corqr <- cor(estPTRsInt[, 3], estPTRsInt[, 2])
+          if (corqr > cormax & length(minor_sample_q) == 0 & length(minor_sample_r) == 0) {
+            cormax <- corqr
+            qmax <- estPTRsq
+            rmax <- estPTRsr
+            estPTRsIntBest <- estPTRsInt
           }
         }
-        if (cormax > 0.98) {
-          rownames(estPTRsIntBest) <- estPTRsIntBest$sample
-          estPTRsInt <- subset(estPTRsIntBest, select = -c(sample))
+      }
+      if (cormax > 0.98) {
+        rownames(estPTRsIntBest) <- estPTRsIntBest$sample
+        estPTRsInt <- subset(estPTRsIntBest, select = -c(sample))
 
-          estPTRsIntPCA <- prcomp(estPTRsInt)
+        estPTRsIntPCA <- prcomp(estPTRsInt)
 
-          qmax$TestPTR <- (qmax$estPTR - mean(estPTRsInt$estPTR.x)) / estPTRsIntPCA$rotation[1, 1]
-          rmax$TestPTR <- (rmax$estPTR - mean(estPTRsInt$estPTR.y)) / estPTRsIntPCA$rotation[2, 1]
-          rmax$TestPTR2 <- rmax$TestPTR * estPTRsIntPCA$rotation[1, 1] + mean(estPTRsInt$estPTR.x)
-          qmax$TestPTR2 <- qmax$TestPTR * estPTRsIntPCA$rotation[2, 1] + mean(estPTRsInt$estPTR.y)
+        qmax$TestPTR <- (qmax$estPTR - mean(estPTRsInt$estPTR.x)) / estPTRsIntPCA$rotation[1, 1]
+        rmax$TestPTR <- (rmax$estPTR - mean(estPTRsInt$estPTR.y)) / estPTRsIntPCA$rotation[2, 1]
+        rmax$TestPTR2 <- rmax$TestPTR * estPTRsIntPCA$rotation[1, 1] + mean(estPTRsInt$estPTR.x)
+        qmax$TestPTR2 <- qmax$TestPTR * estPTRsIntPCA$rotation[2, 1] + mean(estPTRsInt$estPTR.y)
 
-          if (testReasonable(qmax$TestPTR2, rmax$estPTR) > testReasonable(rmax$TestPTR2, qmax$estPTR) & testReasonable(qmax$TestPTR2, rmax$estPTR) > 0.2) {
-            estPTRfinal <- dfTransfer(rmax, qmax)
-            break
-          } else if (testReasonable(qmax$TestPTR2, rmax$estPTR) < testReasonable(rmax$TestPTR2, qmax$estPTR) & testReasonable(rmax$TestPTR2, qmax$estPTR) > 0.2) {
-            estPTRfinal <- dfTransfer(qmax, rmax)
-            break
-          } else {
-            next
-          }
+        if (testReasonable(qmax$TestPTR2, rmax$estPTR) > testReasonable(rmax$TestPTR2, qmax$estPTR) & testReasonable(qmax$TestPTR2, rmax$estPTR) > 0.2) {
+          estPTRfinal <- dfTransfer(rmax, qmax)
+          break
+        } else if (testReasonable(qmax$TestPTR2, rmax$estPTR) < testReasonable(rmax$TestPTR2, qmax$estPTR) & testReasonable(rmax$TestPTR2, qmax$estPTR) > 0.2) {
+          estPTRfinal <- dfTransfer(qmax, rmax)
+          break
         } else {
           next
         }
-      }
-      if (nrow(estPTRfinal) < length(Samples_filteredY1)) {
-        stop("fail to calculate consistent PTRs or combine PTRs from two subsets of samples!")
       } else {
-        estPTRs2 <- estPTRfinal
+        next
       }
-    } else {
-      stop("fail to calculate consistent PTRs!")
     }
+    if (nrow(estPTRfinal) < length(Samples_filteredY1)) {
+      stop("fail to calculate consistent PTRs or combine PTRs from two subsets of samples!")
+    } else {
+      estPTRs2 <- estPTRfinal
+    }
+  } else {
+    stop("fail to calculate consistent PTRs!")
+  }
 }
 
 #' Main function
@@ -244,7 +244,9 @@ samplesPipeline <- function(X) {
 #'
 #' @export
 estPTR <- function(X, max_candidate_iter = 10, ...) {
-  estPTRs <- suppressWarnings({contigsPipeline(X)})
+  estPTRs <- suppressWarnings({
+    contigsPipeline(X)
+  })
   if (is.null(estPTRs)) {
     Y <- X
     estPTRs <- samplesPipeline(Y)
