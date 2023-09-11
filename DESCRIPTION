@@ -10,12 +10,10 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.2
 Imports:
-    lintr,
     lme4,
-    logger,
-    reshape2,
-    stringr
+    reshape2
 Suggests: 
     covr,
+    lintr,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
