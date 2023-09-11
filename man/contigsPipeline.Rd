@@ -2,7 +2,8 @@
 % Please edit documentation in R/estPTR.R
 \name{contigsPipeline}
 \alias{contigsPipeline}
-\title{Attempt the default iteration for contigs}
+\title{Attempt the default iteration for contigs
+Requires at least 20 contigs and 3 samples}
 \usage{
 contigsPipeline(X)
 }
@@ -14,4 +15,5 @@ estPTRs matrix on success, NULL otherwise
 }
 \description{
 Attempt the default iteration for contigs
+Requires at least 20 contigs and 3 samples
 }
