@@ -176,15 +176,15 @@ contig_pca <- function(X) {
 #'
 #' @importFrom stats coef cor cor.test ks.test p.adjust aggregate
 pipeline <- function(Y, i) {
-  lmeModel <- lme4::lmer(logCov ~ GC + (1 | sample:contig), data = Y, REML = FALSE)
-  summeryMeanY <- aggregate(GC ~ (sample:contig), Y, FUN = "mean")
+  lmeModel <- lme4::lmer(log_cov ~ GC_content + (1 | sample:contig), data = Y, REML = FALSE)
+  summeryMeanY <- aggregate(GC_content ~ (sample:contig), Y, FUN = "mean")
   summeryMeanY$s_c <- paste(summeryMeanY$sample, summeryMeanY$contig, sep = ":")
 
   lmeModelCoef <- coef(lmeModel)$`sample:contig`
   lmeModelCoef$s_c <- rownames(lmeModelCoef)
 
   summeryMeanYSort <- merge(lmeModelCoef, summeryMeanY, by = "s_c")
-  summeryMeanYSort$correctY <- summeryMeanYSort$GC.x * mean(summeryMeanYSort$GC.y) + summeryMeanYSort$`(Intercept)` ###
+  summeryMeanYSort$correctY <- summeryMeanYSort$GC_content.x * mean(summeryMeanYSort$GC_content.y) + summeryMeanYSort$`(Intercept)` ###
 
   # remove samples with no coverage for most of contigs
   summeryMeanYSort2 <- summeryMeanYSort
