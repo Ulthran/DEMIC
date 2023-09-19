@@ -4,7 +4,7 @@
 \alias{estPTR}
 \title{Main function}
 \usage{
-estPTR(X, max_candidate_iter = 10, ...)
+estPTR(X, max_candidate_iter = 10)
 }
 \arguments{
 \item{X}{dataframe with coverage matrix (column names: "logCov", "GC", "sample", "contig", "length")}

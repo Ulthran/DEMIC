@@ -3,7 +3,7 @@
 \name{contigsPipeline}
 \alias{contigsPipeline}
 \title{Attempt the default iteration for contigs
-Requires at least 20 contigs and 3 samples}
+Requires at least 20 contigs}
 \usage{
 contigsPipeline(X)
 }
@@ -15,5 +15,5 @@ estPTRs matrix on success, NULL otherwise
 }
 \description{
 Attempt the default iteration for contigs
-Requires at least 20 contigs and 3 samples
+Requires at least 20 contigs
 }

@@ -1,7 +1,7 @@
 source("R/utils.R")
 
 #' Attempt the default iteration for contigs
-#' Requires at least 20 contigs and 3 samples
+#' Requires at least 20 contigs
 #'
 #' @param X cov3 matrix as a dataframe
 #' @return estPTRs matrix on success, NULL otherwise
@@ -117,8 +117,15 @@ contigsPipeline <- function(X) {
   }
 }
 
-# Attempt alternative iteration for samples
-samplesPipeline <- function(X) {
+#' Attempt alternative iteration for samples
+#' Requires at least 3 samples
+#'
+#' @param X cov3 matrix as a dataframe
+#' @param max_candidate_iter max number of tries for samples pipeline iteration
+#' @return estPTRs matrix on success, NULL otherwise
+#'
+#' @importFrom stats prcomp aggregate
+samplesPipeline <- function(X, max_candidate_iter) {
   pipelineY <- itePipelines(X)
   if (length(pipelineY) == 1) {
     stop("pipelineY failed")

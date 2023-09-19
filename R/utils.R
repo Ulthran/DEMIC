@@ -159,6 +159,8 @@ testReasonable <- function(a, b) {
 #' A function to return the first dimension of PCA on an input matrix
 #' @param X a matrix to undergo PCA
 #' @return first dimension of the PCA results
+#'
+#' @importFrom stats prcomp
 contig_pca <- function(X) {
   contigPCA <- prcomp(X) # take first component (PC1)
 
@@ -172,11 +174,7 @@ contig_pca <- function(X) {
 #' @return final filtered samples, matrix of sample, contig and corrected coverages,
 #' filtered contigs with PC1 values, PC1 range, preliminary filtered samples
 #'
-#' @importFrom stats coef
-#' @importFrom stats cor
-#' @importFrom stats cor.test
-#' @importFrom stats ks.test
-#' @importFrom stats p.adjust
+#' @importFrom stats coef cor cor.test ks.test p.adjust aggregate
 pipeline <- function(Y, i) {
   lmeModel <- lme4::lmer(logCov ~ GC + (1 | sample:contig), data = Y, REML = FALSE)
   summeryMeanY <- aggregate(GC ~ (sample:contig), Y, FUN = "mean")
