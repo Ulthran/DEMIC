@@ -5,6 +5,8 @@ source("R/utils.R")
 #'
 #' @param X cov3 matrix as a dataframe
 #' @return estPTRs matrix on success, NULL otherwise
+#'
+#' @importFrom stats aggregate prcomp var
 contigsPipeline <- function(X) {
   if (length(levels(X$contig)) < 20 | length(levels(X$sample)) < 3) {
     return(NULL)
@@ -237,13 +239,8 @@ samplesPipeline <- function(X) {
 #' @param max_candidate_iter max allowed iterations for estimation of PTR (default: 10)
 #' @returns dataframe with the estimated PTRs (column names: "estPTR", "coefficient", "pValue", "cor", "correctY")
 #'
-# @examples
-# X <- read.csv("data/ContigCluster1.cov3", header = FALSE, stringsAsFactors = TRUE)
-# colnames(X) <- c("logCov", "GC", "sample", "contig", "length")
-# estPTR(X)
-#'
 #' @export
-estPTR <- function(X, max_candidate_iter = 10, ...) {
+estPTR <- function(X, max_candidate_iter = 10) {
   estPTRs <- suppressWarnings({
     contigsPipeline(X)
   })
