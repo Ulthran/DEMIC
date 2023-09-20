@@ -146,7 +146,7 @@ df_transfer <- function(x, y) {
 #' @param a first vector of values
 #' @param b second vector of values
 #' @return the test result
-testReasonable <- function(a, b) {
+test_reasonable <- function(a, b) {
   c <- c(a, b)
   if (min(c) >= 1) {
     return(min(c) / max(c))
@@ -161,7 +161,7 @@ testReasonable <- function(a, b) {
 #'
 #' @importFrom stats prcomp
 contig_pca <- function(X) {
-  contigPCA <- prcomp(X) # take first component (PC1)
+  contig_pca <- prcomp(X) # take first component (PC1)
 
-  return(data.frame("contig" = rownames(contigPCA$x), "PC1" = contigPCA$x[, "PC1"]))
+  data.frame("contig" = rownames(contig_pca$x), "PC1" = contig_pca$x[, "PC1"])
 }
