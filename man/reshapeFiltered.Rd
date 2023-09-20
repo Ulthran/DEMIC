@@ -4,10 +4,10 @@
 \alias{reshapeFiltered}
 \title{A function for reshape to facilitate PCA, removing all contigs with missing values for designated samples}
 \usage{
-reshapeFiltered(Samples_filtered, Z)
+reshapeFiltered(samples_filtered, Z)
 }
 \arguments{
-\item{Samples_filtered}{a vector of samples}
+\item{samples_filtered}{a vector of samples}
 
 \item{Z}{a matrix of coverage}
 }

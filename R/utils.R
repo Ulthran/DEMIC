@@ -62,44 +62,40 @@ lm_column <- function(x, y) {
   c(lm_model$coefficients[2], anova_model$`Pr(>F)`)
 }
 
-#' A helper function for getting the sum and length of a vector
-#' @param x the vector
-#' @return the vector containing the sum and length of the input
-countNA <- function(x) c(sum(x), length(x))
-
 #' A function for sample filtration
-#' @param Z a matrix
-#' @param cutoffAve threshold of average
-#' @param cutoffRatio threshold of ratio
-#' @return the coefficient and p value of linear regression
 #' Input requirements: 1. have values in more than half of the contigs 2. average log2(cov) > 0 in all these contigs
-filterSample <- function(Z, cutoffAve, cutoffRatio) {
-  X_summary <- aggregate(correctY ~ (sample), Z, FUN = countNA)
+#' @param Z a matrix
+#' @param avg_cutoff threshold of average
+#' @param cutoff_ratio threshold of ratio
+#' @return the coefficient and p value of linear regression
+filter_sample <- function(Z, avg_cutoff, cutoff_ratio) {
+  z_summary <- aggregate(correctY ~ (sample), Z, FUN = function(x) c(sum(x), length(x)))
 
-  levelContigX <- length(unique(Z$contig))
-  Samples_filtered <- X_summary[X_summary$correctY[, 1] >= cutoffAve * levelContigX & X_summary$correctY[, 2] >= cutoffRatio * levelContigX, ]$sample
-  return(Samples_filtered)
+  contig_level <- length(unique(Z$contig))
+  samples_filtered <- z_summary[z_summary$correctY[, 1] >= avg_cutoff * contig_level & z_summary$correctY[, 2] >= cutoff_ratio * contig_level, ]$sample
+
+  samples_filtered
 }
 
 #' A function for orientation determination
 #' @param Z a vector of values
 #' @return a subset, where each value has the same majority of orientation
 cor_diff <- function(Z) {
-  sampleSet1 <- Z[Z$cor > 0, ]$sample
-  sampleSet2 <- Z[Z$cor < 0, ]$sample
-  if (length(sampleSet1) > length(sampleSet2)) {
-    return(sampleSet2)
+  pos_cor <- Z[Z$cor > 0, ]$sample
+  neg_cor <- Z[Z$cor < 0, ]$sample
+  if (length(pos_cor) > length(neg_cor)) {
+    return(neg_cor)
   } else {
-    return(sampleSet1)
+    return(pos_cor)
   }
 }
 
 #' A function for reshape to facilitate PCA, removing all contigs with missing values for designated samples
-#' @param Samples_filtered a vector of samples
+#' @param samples_filtered a vector of samples
 #' @param Z a matrix of coverage
 #' @return a reshaped matrix of coverage
-reshapeFiltered <- function(Samples_filtered, Z) {
-  X_filter <- subset(Z, sample %in% Samples_filtered, select = c(sample, contig, correctY))
+reshapeFiltered <- function(samples_filtered, Z) {
+  X_filter <- subset(Z, sample %in% samples_filtered, select = c(sample, contig, correctY))
   X_filter_wide <- reshape2::dcast(subset(X_filter, select = c("sample", "contig", "correctY")), contig ~ sample)
 
   X_filter_wide3 <- apply(subset(X_filter_wide, select = -c(contig)), 1, function(x) length(x[is.na(x)]))

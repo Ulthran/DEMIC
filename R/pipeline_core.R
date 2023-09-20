@@ -23,7 +23,8 @@ pipeline <- function(Y, i) {
   ### cutoff of filtering samples changes according to parameter i
   ### i=1, cutoffRatio is 0.5; i=2, cutoffRatio is 1 as contig is clean
   i <- 1
-  Samples_filteredY <- filterSample(summeryMeanYSort2, 0, 1 / (3 - i))
+  dput(summeryMeanYSort2)
+  Samples_filteredY <- filter_sample(summeryMeanYSort2, 0, 1 / (3 - i))
   if (length(Samples_filteredY) < 2) {
     return("too few (<2) samples with reliable coverages for the set of contigs")
   }
