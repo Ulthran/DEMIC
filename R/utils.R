@@ -55,12 +55,11 @@ select_by_ks_test <- function(sort_values) {
 #' @param y second vector
 #' @return the coefficient and p value of linear regression
 #'
-#' @importFrom stats anova
-#' @importFrom stats lm
-lmColumn <- function(x, y) {
-  lmModel <- lm(x ~ y)
-  anova_model <- anova(lmModel)
-  return(c(lmModel$coefficients[2], anova_model$`Pr(>F)`))
+#' @importFrom stats anova lm
+lm_column <- function(x, y) {
+  lm_model <- lm(x ~ y)
+  anova_model <- anova(lm_model)
+  c(lm_model$coefficients[2], anova_model$`Pr(>F)`)
 }
 
 #' A helper function for getting the sum and length of a vector

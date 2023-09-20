@@ -61,7 +61,7 @@ contigs_pipeline <- function(X) {
 
         sample_correct_y_PC1 <- merge(reshape2::dcast(subset(sum_mean_sort_sample_contig_x, select = c("sample", "contig", "correctY")), contig ~ sample), contig_PC1_filtered_x)
 
-        lm_model_co <- apply(subset(sample_correct_y_PC1, select = -c(contig, PC1)), 2, lmColumn, y = sample_correct_y_PC1$PC1)
+        lm_model_co <- apply(subset(sample_correct_y_PC1, select = -c(contig, PC1)), 2, lm_column, y = sample_correct_y_PC1$PC1)
         cor_model <- apply(subset(sample_correct_y_PC1, select = -c(contig, PC1)), 2, function(x) cor.test(sample_correct_y_PC1$PC1, x)$estimate)
 
         est_PTRs <- data.frame("est_PTR" = 2^abs(lm_model_co[1, ] * (range_x[1] - range_x[2])), "coefficient" = lm_model_co[1, ], "pValue" = lm_model_co[2, ], "cor" = cor_model)
@@ -70,7 +70,7 @@ contigs_pipeline <- function(X) {
 
         sample_correct_y_PC1 <- merge(reshape2::dcast(subset(sum_mean_sort_sample_contig_y, select = c("sample", "contig", "correctY")), contig ~ sample), contig_PC1_filtered_y)
 
-        lm_model_co <- apply(subset(sample_correct_y_PC1, select = -c(contig, PC1)), 2, lmColumn, y = sample_correct_y_PC1$PC1)
+        lm_model_co <- apply(subset(sample_correct_y_PC1, select = -c(contig, PC1)), 2, lm_column, y = sample_correct_y_PC1$PC1)
         cor_model <- apply(subset(sample_correct_y_PC1, select = -c(contig, PC1)), 2, function(x) cor.test(sample_correct_y_PC1$PC1, x)$estimate)
 
         est_PTRs <- data.frame("est_PTR" = 2^abs(lm_model_co[1, ] * (range_y[1] - range_y[2])), "coefficient" = lm_model_co[1, ], "pValue" = lm_model_co[2, ], "cor" = cor_model)
@@ -136,7 +136,7 @@ samples_pipeline <- function(X, max_candidate_iter) {
 
   sample_correct_y_PC1 <- merge(reshape2::dcast(subset(summeryMeanYSortFilteredSampleContig1, select = c("sample", "contig", "correctY")), contig ~ sample), contigPCAPC1Filtered1)
 
-  lm_model_co <- apply(subset(sample_correct_y_PC1, select = -c(contig, PC1)), 2, lmColumn, y = sample_correct_y_PC1$PC1)
+  lm_model_co <- apply(subset(sample_correct_y_PC1, select = -c(contig, PC1)), 2, lm_column, y = sample_correct_y_PC1$PC1)
   cor_model <- apply(subset(sample_correct_y_PC1, select = -c(contig, PC1)), 2, function(x) cor.test(sample_correct_y_PC1$PC1, x)$estimate)
 
   est_PTRs <- data.frame("est_PTR" = 2^abs(lm_model_co[1, ] * (range1[1] - range1[2])), "coefficient" = lm_model_co[1, ], "pValue" = lm_model_co[2, ], "cor" = cor_model)
@@ -172,7 +172,7 @@ samples_pipeline <- function(X, max_candidate_iter) {
 
         sample_correct_y_PC1 <- merge(reshape2::dcast(subset(summeryMeanYSortFilteredSampleContigX, select = c("sample", "contig", "correctY")), contig ~ sample), contigPCAPC1FilteredX)
 
-        lm_model_co <- apply(subset(sample_correct_y_PC1, select = -c(contig, PC1)), 2, lmColumn, y = sample_correct_y_PC1$PC1)
+        lm_model_co <- apply(subset(sample_correct_y_PC1, select = -c(contig, PC1)), 2, lm_column, y = sample_correct_y_PC1$PC1)
         cor_model <- apply(subset(sample_correct_y_PC1, select = -c(contig, PC1)), 2, function(x) cor.test(sample_correct_y_PC1$PC1, x)$estimate)
 
         est_PTRs <- data.frame("est_PTR" = 2^abs(lm_model_co[1, ] * (rangeX[1] - rangeX[2])), "coefficient" = lm_model_co[1, ], "pValue" = lm_model_co[2, ], "cor" = cor_model)
