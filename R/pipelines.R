@@ -22,9 +22,9 @@ contigs_pipeline <- function(X) {
 
     nrm <- floor(length(levels(X$contig)) / 5)
     set.seed(s2)
-    designateR2 <- sample.int(10000, size = length(levels(X$contig)), replace = FALSE)
-    ContigDesignateR2 <- data.frame("Contig" = levels(X$contig), "number" = designateR2)
-    ContigDesignateRSort2 <- ContigDesignateR2[order(ContigDesignateR2[, 2]), ]
+    designate_R <- sample.int(10000, size = length(levels(X$contig)), replace = FALSE)
+    contig_designate_R <- data.frame("Contig" = levels(X$contig), "number" = designate_R)
+    contig_designate_R_sort <- contig_designate_R[order(contig_designate_R[, 2]), ]
     nacontig_id <- NULL
     for (x in 1:4) {
       for (y in (x + 1):5) {
@@ -34,48 +34,48 @@ contigs_pipeline <- function(X) {
         if (y %in% nacontig_id) {
           next
         }
-        ContigDesignateRemove1 <- ContigDesignateRSort2[(nrm * (x - 1) + 1):(nrm * x), 1]
-        ContigDesignateRemove2 <- ContigDesignateRSort2[(nrm * (y - 1) + 1):(nrm * y), 1]
+        contig_designate_remove_x <- contig_designate_R_sort[(nrm * (x - 1) + 1):(nrm * x), 1]
+        contig_designate_remove_y <- contig_designate_R_sort[(nrm * (y - 1) + 1):(nrm * y), 1]
 
-        pipelineX1 <- itePipelines(X[!X$contig %in% ContigDesignateRemove1, ])
-        if (length(pipelineX1) == 1) {
+        pipeline_x <- iterate_pipelines(X[!X$contig %in% contig_designate_remove_x, ])
+        if (length(pipeline_x) == 1) {
           return(NULL)
         }
-        pipelineX2 <- itePipelines(X[!X$contig %in% ContigDesignateRemove2, ])
-        if (length(pipelineX2) == 1) {
+        pipeline_y <- iterate_pipelines(X[!X$contig %in% contig_designate_remove_y, ])
+        if (length(pipeline_y) == 1) {
           nacontig_id <- c(nacontig_id, y)
           next
         }
-        Samples_filteredXrm1 <- pipelineX1[[1]]
-        summeryMeanYSortFilteredSampleContigXrm1 <- pipelineX1[[2]]
-        contigPCAPC1FilteredXrm1 <- pipelineX1[[3]]
-        rangeXrm1 <- pipelineX1[[4]]
+        samples_filtered_x <- pipeline_x[[1]]
+        sum_mean_sort_sample_contig_x <- pipeline_x[[2]]
+        contig_PC1_filtered_x <- pipeline_x[[3]]
+        range_x <- pipeline_x[[4]]
 
-        Samples_filteredXrm2 <- pipelineX2[[1]]
-        summeryMeanYSortFilteredSampleContigXrm2 <- pipelineX2[[2]]
-        contigPCAPC1FilteredXrm2 <- pipelineX2[[3]]
-        rangeXrm2 <- pipelineX2[[4]]
-        if (length(contigPCAPC1FilteredXrm1$contig) - length(intersect(contigPCAPC1FilteredXrm1$contig, contigPCAPC1FilteredXrm2$contig)) < 3 | length(contigPCAPC1FilteredXrm2$contig) - length(intersect(contigPCAPC1FilteredXrm1$contig, contigPCAPC1FilteredXrm2$contig)) < 3) {
+        samples_filtered_y <- pipeline_y[[1]]
+        sum_mean_sort_sample_contig_y <- pipeline_y[[2]]
+        contig_PC1_filtered_y <- pipeline_y[[3]]
+        range_y <- pipeline_y[[4]]
+        if (length(contig_PC1_filtered_x$contig) - length(intersect(contig_PC1_filtered_x$contig, contig_PC1_filtered_y$contig)) < 3 | length(contig_PC1_filtered_y$contig) - length(intersect(contig_PC1_filtered_x$contig, contig_PC1_filtered_y$contig)) < 3) {
           next
         }
 
-        SampleCorrectYWithPC1 <- merge(reshape2::dcast(subset(summeryMeanYSortFilteredSampleContigXrm1, select = c("sample", "contig", "correctY")), contig ~ sample), contigPCAPC1FilteredXrm1)
+        sample_correct_y_PC1 <- merge(reshape2::dcast(subset(sum_mean_sort_sample_contig_x, select = c("sample", "contig", "correctY")), contig ~ sample), contig_PC1_filtered_x)
 
-        lmModelCo <- apply(subset(SampleCorrectYWithPC1, select = -c(contig, PC1)), 2, lmColumn, y = SampleCorrectYWithPC1$PC1)
-        cor_model <- apply(subset(SampleCorrectYWithPC1, select = -c(contig, PC1)), 2, function(x) cor.test(SampleCorrectYWithPC1$PC1, x)$estimate)
+        lm_model_co <- apply(subset(sample_correct_y_PC1, select = -c(contig, PC1)), 2, lmColumn, y = sample_correct_y_PC1$PC1)
+        cor_model <- apply(subset(sample_correct_y_PC1, select = -c(contig, PC1)), 2, function(x) cor.test(sample_correct_y_PC1$PC1, x)$estimate)
 
-        est_PTRs <- data.frame("est_PTR" = 2^abs(lmModelCo[1, ] * (rangeXrm1[1] - rangeXrm1[2])), "coefficient" = lmModelCo[1, ], "pValue" = lmModelCo[2, ], "cor" = cor_model)
+        est_PTRs <- data.frame("est_PTR" = 2^abs(lm_model_co[1, ] * (range_x[1] - range_x[2])), "coefficient" = lm_model_co[1, ], "pValue" = lm_model_co[2, ], "cor" = cor_model)
         est_PTRs$sample <- rownames(est_PTRs)
-        est_PTRsEach1 <- merge(est_PTRs, aggregate(correctY ~ sample, summeryMeanYSortFilteredSampleContigXrm1, FUN = "median"), by = "sample")
+        est_PTRsEach1 <- merge(est_PTRs, aggregate(correctY ~ sample, sum_mean_sort_sample_contig_x, FUN = "median"), by = "sample")
 
-        SampleCorrectYWithPC1 <- merge(reshape2::dcast(subset(summeryMeanYSortFilteredSampleContigXrm2, select = c("sample", "contig", "correctY")), contig ~ sample), contigPCAPC1FilteredXrm2)
+        sample_correct_y_PC1 <- merge(reshape2::dcast(subset(sum_mean_sort_sample_contig_y, select = c("sample", "contig", "correctY")), contig ~ sample), contig_PC1_filtered_y)
 
-        lmModelCo <- apply(subset(SampleCorrectYWithPC1, select = -c(contig, PC1)), 2, lmColumn, y = SampleCorrectYWithPC1$PC1)
-        cor_model <- apply(subset(SampleCorrectYWithPC1, select = -c(contig, PC1)), 2, function(x) cor.test(SampleCorrectYWithPC1$PC1, x)$estimate)
+        lm_model_co <- apply(subset(sample_correct_y_PC1, select = -c(contig, PC1)), 2, lmColumn, y = sample_correct_y_PC1$PC1)
+        cor_model <- apply(subset(sample_correct_y_PC1, select = -c(contig, PC1)), 2, function(x) cor.test(sample_correct_y_PC1$PC1, x)$estimate)
 
-        est_PTRs <- data.frame("est_PTR" = 2^abs(lmModelCo[1, ] * (rangeXrm2[1] - rangeXrm2[2])), "coefficient" = lmModelCo[1, ], "pValue" = lmModelCo[2, ], "cor" = cor_model)
+        est_PTRs <- data.frame("est_PTR" = 2^abs(lm_model_co[1, ] * (range_y[1] - range_y[2])), "coefficient" = lm_model_co[1, ], "pValue" = lm_model_co[2, ], "cor" = cor_model)
         est_PTRs$sample <- rownames(est_PTRs)
-        est_PTRsEach2 <- merge(est_PTRs, aggregate(correctY ~ sample, summeryMeanYSortFilteredSampleContigXrm2, FUN = "median"), by = "sample")
+        est_PTRsEach2 <- merge(est_PTRs, aggregate(correctY ~ sample, sum_mean_sort_sample_contig_y, FUN = "median"), by = "sample")
 
         minor_sample1 <- cor_diff(est_PTRsEach1)
         minor_sample2 <- cor_diff(est_PTRsEach2)
@@ -124,7 +124,7 @@ contigs_pipeline <- function(X) {
 #'
 #' @importFrom stats prcomp aggregate
 samples_pipeline <- function(X, max_candidate_iter) {
-  pipelineY <- itePipelines(X)
+  pipelineY <- iterate_pipelines(X)
   if (length(pipelineY) == 1) {
     stop("pipelineY failed")
   }
@@ -134,12 +134,12 @@ samples_pipeline <- function(X, max_candidate_iter) {
   range1 <- pipelineY[[4]]
   Samples_filteredY1 <- pipelineY[[5]]
 
-  SampleCorrectYWithPC1 <- merge(reshape2::dcast(subset(summeryMeanYSortFilteredSampleContig1, select = c("sample", "contig", "correctY")), contig ~ sample), contigPCAPC1Filtered1)
+  sample_correct_y_PC1 <- merge(reshape2::dcast(subset(summeryMeanYSortFilteredSampleContig1, select = c("sample", "contig", "correctY")), contig ~ sample), contigPCAPC1Filtered1)
 
-  lmModelCo <- apply(subset(SampleCorrectYWithPC1, select = -c(contig, PC1)), 2, lmColumn, y = SampleCorrectYWithPC1$PC1)
-  cor_model <- apply(subset(SampleCorrectYWithPC1, select = -c(contig, PC1)), 2, function(x) cor.test(SampleCorrectYWithPC1$PC1, x)$estimate)
+  lm_model_co <- apply(subset(sample_correct_y_PC1, select = -c(contig, PC1)), 2, lmColumn, y = sample_correct_y_PC1$PC1)
+  cor_model <- apply(subset(sample_correct_y_PC1, select = -c(contig, PC1)), 2, function(x) cor.test(sample_correct_y_PC1$PC1, x)$estimate)
 
-  est_PTRs <- data.frame("est_PTR" = 2^abs(lmModelCo[1, ] * (range1[1] - range1[2])), "coefficient" = lmModelCo[1, ], "pValue" = lmModelCo[2, ], "cor" = cor_model)
+  est_PTRs <- data.frame("est_PTR" = 2^abs(lm_model_co[1, ] * (range1[1] - range1[2])), "coefficient" = lm_model_co[1, ], "pValue" = lm_model_co[2, ], "cor" = cor_model)
   est_PTRs$sample <- rownames(est_PTRs)
   est_PTRs3 <- merge(est_PTRs, aggregate(correctY ~ sample, summeryMeanYSortFilteredSampleContig1, FUN = "median"), by = "sample")
 
@@ -161,7 +161,7 @@ samples_pipeline <- function(X, max_candidate_iter) {
       for (q in 0:2) {
         selectSamples[[q + 1]] <- SampleDesignateRSort[(1:length(Samples_filteredY1)) %% 3 == q, ]$Sample
 
-        pipelineX <- itePipelines(X[!X$sample %in% selectSamples[[q + 1]], ])
+        pipelineX <- iterate_pipelines(X[!X$sample %in% selectSamples[[q + 1]], ])
         if (length(pipelineX) == 1) {
           break
         }
@@ -170,12 +170,12 @@ samples_pipeline <- function(X, max_candidate_iter) {
         contigPCAPC1FilteredX <- pipelineX[[3]]
         rangeX <- pipelineX[[4]]
 
-        SampleCorrectYWithPC1 <- merge(reshape2::dcast(subset(summeryMeanYSortFilteredSampleContigX, select = c("sample", "contig", "correctY")), contig ~ sample), contigPCAPC1FilteredX)
+        sample_correct_y_PC1 <- merge(reshape2::dcast(subset(summeryMeanYSortFilteredSampleContigX, select = c("sample", "contig", "correctY")), contig ~ sample), contigPCAPC1FilteredX)
 
-        lmModelCo <- apply(subset(SampleCorrectYWithPC1, select = -c(contig, PC1)), 2, lmColumn, y = SampleCorrectYWithPC1$PC1)
-        cor_model <- apply(subset(SampleCorrectYWithPC1, select = -c(contig, PC1)), 2, function(x) cor.test(SampleCorrectYWithPC1$PC1, x)$estimate)
+        lm_model_co <- apply(subset(sample_correct_y_PC1, select = -c(contig, PC1)), 2, lmColumn, y = sample_correct_y_PC1$PC1)
+        cor_model <- apply(subset(sample_correct_y_PC1, select = -c(contig, PC1)), 2, function(x) cor.test(sample_correct_y_PC1$PC1, x)$estimate)
 
-        est_PTRs <- data.frame("est_PTR" = 2^abs(lmModelCo[1, ] * (rangeX[1] - rangeX[2])), "coefficient" = lmModelCo[1, ], "pValue" = lmModelCo[2, ], "cor" = cor_model)
+        est_PTRs <- data.frame("est_PTR" = 2^abs(lm_model_co[1, ] * (rangeX[1] - rangeX[2])), "coefficient" = lm_model_co[1, ], "pValue" = lm_model_co[2, ], "cor" = cor_model)
         est_PTRs$sample <- rownames(est_PTRs)
         est_PTRsEach[[q + 1]] <- merge(est_PTRs, aggregate(correctY ~ sample, summeryMeanYSortFilteredSampleContig1, FUN = "median"), by = "sample")
       }
