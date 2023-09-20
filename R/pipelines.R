@@ -216,10 +216,10 @@ samples_pipeline <- function(X, max_candidate_iter) {
         qmax$Test_PTR2 <- qmax$Test_PTR * est_PTRsIntPCA$rotation[2, 1] + mean(est_PTRsInt$est_PTR.y)
 
         if (testReasonable(qmax$Test_PTR2, rmax$est_PTR) > testReasonable(rmax$Test_PTR2, qmax$est_PTR) & testReasonable(qmax$Test_PTR2, rmax$est_PTR) > 0.2) {
-          est_PTRfinal <- dfTransfer(rmax, qmax)
+          est_PTRfinal <- df_transfer(rmax, qmax)
           break
         } else if (testReasonable(qmax$Test_PTR2, rmax$est_PTR) < testReasonable(rmax$Test_PTR2, qmax$est_PTR) & testReasonable(rmax$Test_PTR2, qmax$est_PTR) > 0.2) {
-          est_PTRfinal <- dfTransfer(qmax, rmax)
+          est_PTRfinal <- df_transfer(qmax, rmax)
           break
         } else {
           next

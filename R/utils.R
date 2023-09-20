@@ -94,17 +94,18 @@ cor_diff <- function(Z) {
 #' @param samples_filtered a vector of samples
 #' @param Z a matrix of coverage
 #' @return a reshaped matrix of coverage
-reshapeFiltered <- function(samples_filtered, Z) {
-  X_filter <- subset(Z, sample %in% samples_filtered, select = c(sample, contig, correctY))
-  X_filter_wide <- reshape2::dcast(subset(X_filter, select = c("sample", "contig", "correctY")), contig ~ sample)
+reshape_filtered <- function(samples_filtered, Z) {
+  z_filtered <- subset(Z, sample %in% samples_filtered, select = c(sample, contig, correctY))
+  z_filtered_wide <- reshape2::dcast(subset(z_filtered, select = c("sample", "contig", "correctY")), contig ~ sample)
 
-  X_filter_wide3 <- apply(subset(X_filter_wide, select = -c(contig)), 1, function(x) length(x[is.na(x)]))
-  names(X_filter_wide3) <- X_filter_wide$contig
+  z_filtered_wide_na <- apply(subset(z_filtered_wide, select = -c(contig)), 1, function(x) length(x[is.na(x)]))
+  names(z_filtered_wide_na) <- z_filtered_wide$contig
 
-  X_filter_wide2 <- subset(subset(X_filter_wide, contig %in% names(X_filter_wide3[X_filter_wide3 == 0])), select = -c(contig))
+  z_filtered_wide_na_nz <- subset(subset(z_filtered_wide, contig %in% names(z_filtered_wide_na[z_filtered_wide_na == 0])), select = -c(contig))
 
-  row.names(X_filter_wide2) <- names(X_filter_wide3[X_filter_wide3 == 0])
-  return(X_filter_wide2)
+  row.names(z_filtered_wide_na_nz) <- names(z_filtered_wide_na[z_filtered_wide_na == 0])
+
+  z_filtered_wide_na_nz
 }
 
 #' A function for data frame integration
@@ -112,31 +113,33 @@ reshapeFiltered <- function(samples_filtered, Z) {
 #' @param y second data frame
 #' @param i 'sample' column
 #' @return a data frame with the other column as mean or max of that in the original two
-consistTransfer <- function(x, y, i) {
+consist_transfer <- function(x, y, i) {
   z <- merge(x, y, by = "sample", all.x = TRUE, all.y = TRUE)
   if (i == 1) {
-    estPTRBoth <- apply(subset(z, select = 2:3), 1, function(x) mean(abs(x), na.rm = TRUE))
+    est_ptr <- apply(subset(z, select = 2:3), 1, function(x) mean(abs(x), na.rm = TRUE))
   } else if (i == 2) {
-    estPTRBoth <- apply(subset(z, select = 2:3), 1, function(x) max(abs(x), na.rm = TRUE))
+    est_ptr <- apply(subset(z, select = 2:3), 1, function(x) max(abs(x), na.rm = TRUE))
   }
-  names(estPTRBoth) <- z$sample
-  return(estPTRBoth)
+  names(est_ptr) <- z$sample
+
+  est_ptr
 }
 
 #' A function for data frame transfer
-#' @param X1 first data frame with six columns
-#' @param X2 second data frame with six columns
+#' @param x first data frame with six columns
+#' @param y second data frame with six columns
 #' @return a data frame with the same six columns but integrated info
-dfTransfer <- function(X1, X2) {
-  X12 <- data.frame(
-    "sample" = sort(union(X1$sample, X2$sample), method = "shell"),
-    "estPTR" = consistTransfer(subset(X1, select = c(sample, estPTR)), subset(X2, select = c(sample, TestPTR2)), 1),
-    "coefficient" = consistTransfer(subset(X1, select = c(sample, coefficient)), subset(X2, select = c(sample, coefficient)), 1),
-    "pValue" = consistTransfer(subset(X1, select = c(sample, pValue)), subset(X2, select = c(sample, pValue)), 2),
-    "cor" = consistTransfer(subset(X1, select = c(sample, cor)), subset(X2, select = c(sample, cor)), 1),
-    "correctY" = consistTransfer(subset(X1, select = c(sample, correctY)), subset(X2, select = c(sample, correctY)), 1)
+df_transfer <- function(x, y) {
+  xy <- data.frame(
+    "sample" = sort(union(x$sample, y$sample), method = "shell"),
+    "estPTR" = consist_transfer(subset(x, select = c(sample, estPTR)), subset(y, select = c(sample, TestPTR2)), 1),
+    "coefficient" = consist_transfer(subset(x, select = c(sample, coefficient)), subset(y, select = c(sample, coefficient)), 1),
+    "pValue" = consist_transfer(subset(x, select = c(sample, pValue)), subset(y, select = c(sample, pValue)), 2),
+    "cor" = consist_transfer(subset(x, select = c(sample, cor)), subset(y, select = c(sample, cor)), 1),
+    "correctY" = consist_transfer(subset(x, select = c(sample, correctY)), subset(y, select = c(sample, correctY)), 1)
   )
-  return(X12)
+
+  xy
 }
 
 #' A function to test whether the result is reasonable

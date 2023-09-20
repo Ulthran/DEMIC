@@ -30,7 +30,7 @@ pipeline <- function(Y, i) {
   }
 
   # summeryMeanYSortFilterWide is the relatively clean matrix with more confident samples and the corresponding contigs with available values
-  summeryMeanYSortFilterWide <- reshapeFiltered(Samples_filteredY, summeryMeanYSort2)
+  summeryMeanYSortFilterWide <- reshape_filtered(Samples_filteredY, summeryMeanYSort2)
 
   # do PCA for contigs
   pca <- contig_pca(summeryMeanYSortFilterWide)
