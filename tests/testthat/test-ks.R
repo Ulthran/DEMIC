@@ -14,10 +14,12 @@ test_that("ks function returns a valid p-value", {
 
 # Test case 2: Test with a vector of all zeros
 test_that("ks function handles a vector of all zeros", {
-  x <- rep(0, 100)  # Create a vector of all zeros
+  x <- rep(0, 100) # Create a vector of all zeros
 
   # Call the ks function
-  p_value <- suppressWarnings({ks(x)})
+  p_value <- suppressWarnings({
+    ks(x)
+  })
 
   # Check if the p-value is numeric and equal to 1
   expect_type(p_value, "double")

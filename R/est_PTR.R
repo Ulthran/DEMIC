@@ -5,14 +5,14 @@
 #' @returns dataframe with the estimated PTRs (column names: "estPTR", "coefficient", "pValue", "cor", "correctY")
 #'
 #' @export
-est_PTR <- function(X, max_candidate_iter = 10) {
-  est_PTRs <- suppressWarnings({
+est_ptr <- function(X, max_candidate_iter = 10) {
+  est_ptrs <- suppressWarnings({
     contigs_pipeline(X)
   })
-  if (is.null(est_PTRs)) {
+  if (is.null(est_ptrs)) {
     Y <- X
-    est_PTRs <- samples_pipeline(Y)
+    est_ptrs <- samples_pipeline(Y)
   }
 
-  est_PTRs
+  est_ptrs
 }

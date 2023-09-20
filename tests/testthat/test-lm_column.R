@@ -10,6 +10,6 @@ test_that("lm_column returns coefficients and p-value for linear regression", {
   expect_type(result, "double")
 
   # Check if the coefficients and p-value are correct
-  expect_equal(result[1][["y"]], 0.5)  # Expected coefficient
-  expect_equal(as.numeric(result[2]), 0, tolerance = 1e-20)  # Expected p-value (approximately 0.5)
+  expect_equal(result[1][["y"]], 0.5) # Expected coefficient
+  expect_equal(as.numeric(result[2]), 0, tolerance = 1e-20) # Expected p-value (approximately 0.5)
 })
