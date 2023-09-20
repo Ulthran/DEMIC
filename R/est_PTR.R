@@ -1,8 +1,11 @@
 #' Main function
 #'
-#' @param X dataframe with coverage matrix (column names: "logCov", "GC", "sample", "contig", "length")
-#' @param max_candidate_iter max allowed iterations for estimation of PTR (default: 10)
-#' @returns dataframe with the estimated PTRs (column names: "estPTR", "coefficient", "pValue", "cor", "correctY")
+#' @param X dataframe with coverage matrix
+#' (column names: "logCov", "GC", "sample", "contig", "length")
+#' @param max_candidate_iter max allowed iterations for estimation of PTR
+#' (default: 10)
+#' @returns dataframe with the estimated PTRs
+#' (column names: "estPTR", "coefficient", "pValue", "cor", "correctY")
 #'
 #' @export
 est_ptr <- function(X, max_candidate_iter = 10) {

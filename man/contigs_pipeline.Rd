@@ -11,7 +11,7 @@ contigs_pipeline(X)
 \item{X}{cov3 matrix as a dataframe}
 }
 \value{
-est_PTRs matrix on success, NULL otherwise
+est_ptrs matrix on success, NULL otherwise
 }
 \description{
 Attempt the default iteration for contigs

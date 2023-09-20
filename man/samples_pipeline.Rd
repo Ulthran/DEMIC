@@ -13,7 +13,7 @@ samples_pipeline(X, max_candidate_iter)
 \item{max_candidate_iter}{max number of tries for samples pipeline iteration}
 }
 \value{
-est_PTRs matrix on success, NULL otherwise
+est_ptrs matrix on success, NULL otherwise
 }
 \description{
 Attempt alternative iteration for samples
