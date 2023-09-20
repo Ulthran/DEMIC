@@ -9,41 +9,42 @@
 #' @param x a vector without NA
 #' @return the p value of KS test
 ks <- function(x) {
-  ks.result <- ks.test(x, "punif", min(x, na.rm = TRUE), max(x, na.rm = TRUE))
-  return(ks.result$p.value)
+  ks_result <- ks.test(x, "punif", min(x, na.rm = TRUE), max(x, na.rm = TRUE))
+
+  ks_result$p.value
 }
 
 #' A function to remove outlier contigs using KS test
-#' @param sortValues a vector of sorted values
+#' @param sort_values a vector of sorted values
 #' @return a vector with all values following a uniform distribution
-selectAccordingToKSTest <- function(sortValues) {
-  len <- length(sortValues)
+select_by_ks_test <- function(sort_values) {
+  len <- length(sort_values)
   if (len < 10) {
     return(c(0, 0, FALSE))
   }
 
-  ksResult <- ks(sortValues)
+  ks_result <- ks(sort_values)
 
-  if (sortValues[2] - sortValues[1] > sortValues[len] - sortValues[len - 1]) {
-    if (ksResult < 0.05) {
-      return(selectAccordingToKSTest(sortValues[2:len]))
+  if (sort_values[2] - sort_values[1] > sort_values[len] - sort_values[len - 1]) {
+    if (ks_result < 0.05) {
+      return(select_by_ks_test(sort_values[2:len]))
     } else {
-      ks_next <- ks(sortValues[2:len])
-      if (ks_next > ksResult + 0.1) {
-        return(selectAccordingToKSTest(sortValues[2:len]))
+      ks_next <- ks(sort_values[2:len])
+      if (ks_next > ks_result + 0.1) {
+        return(select_by_ks_test(sort_values[2:len]))
       } else {
-        return(c(sortValues[1], sortValues[len], TRUE))
+        return(c(sort_values[1], sort_values[len], TRUE))
       }
     }
   } else {
-    if (ksResult < 0.05) {
-      return(selectAccordingToKSTest(sortValues[1:len - 1]))
+    if (ks_result < 0.05) {
+      return(select_by_ks_test(sort_values[1:len - 1]))
     } else {
-      ks_next <- ks(sortValues[2:len])
-      if (ks_next > ksResult + 0.1) {
-        return(selectAccordingToKSTest(sortValues[1:len - 1]))
+      ks_next <- ks(sort_values[2:len])
+      if (ks_next > ks_result + 0.1) {
+        return(select_by_ks_test(sort_values[1:len - 1]))
       } else {
-        return(c(sortValues[1], sortValues[len], TRUE))
+        return(c(sort_values[1], sort_values[len], TRUE))
       }
     }
   }

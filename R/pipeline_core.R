@@ -36,7 +36,7 @@ pipeline <- function(Y, i) {
   ksResult <- ks.test(pca$PC1, "punif", min(pca$PC1), max(pca$PC1))
 
   # all good contigs follow uniform distribution
-  range <- selectAccordingToKSTest(sort(pca$PC1))
+  range <- select_by_ks_test(sort(pca$PC1))
 
   if (range[3] == TRUE) {
     contigPCAPC1Filtered <- subset(pca, PC1 >= range[1] & PC1 <= range[2])
@@ -94,5 +94,6 @@ iterate_pipelines <- function(Z) {
     contigPCAPC1Filtered2 <- pipeline2[[3]]
     range2 <- pipeline2[[4]]
   }
-  return(list(Samples_filtered2, summeryMeanYSortFilteredSampleContig2, contigPCAPC1Filtered2, range2, Samples_filteredY2))
+
+  list(Samples_filtered2, summeryMeanYSortFilteredSampleContig2, contigPCAPC1Filtered2, range2, Samples_filteredY2)
 }
