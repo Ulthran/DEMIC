@@ -68,33 +68,32 @@ pipeline <- function(Y, i) {
 
 #' A function for iteration of pipeline until convergence
 #' @param Z a matrix of coverages
-#' @return final filtered samples, matrix of sample, contig and corrected coverages,
-#' filtered contigs with PC1 values, PC1 range, preliminary filtered samples
+#' @return a named list
+#' \itemize{
+#'   \item{samples}{vector of final filtered samples}
+#'   \item{correct_ys}{matrix of sample, contig and corrected coverages}
+#'   \item{pc1}{matrix of contig and PC1 values}
+#'   \item{range}{vector of PC1 range}
+#'   \item{samples_y}{UNKNOWNFIXME}
+#' }
 iterate_pipelines <- function(Z) {
-  pipeline1 <- pipeline(Z, 1)
-  if (length(pipeline1) == 1) {
-    return(pipeline1)
-  }
-  Samples_filtered2 <- pipeline1[[1]]
-  summeryMeanYSortFilteredSampleContig2 <- pipeline1[[2]]
-  contigPCAPC1Filtered2 <- pipeline1[[3]]
-  range2 <- pipeline1[[4]]
-  Samples_filteredY2 <- pipeline1[[5]]
-  rm(pipeline1)
-
-  ### until convergence
-  while ((length(unique(Z$sample)) != length(Samples_filtered2)) | (length(unique(Z$contig)) != length(unique(contigPCAPC1Filtered2$contig)))) {
-    Z <- subset(Z, sample %in% Samples_filtered2 & contig %in% contigPCAPC1Filtered2$contig)
-    pipeline2 <- pipeline(Z, 1)
-    if (length(pipeline2) == 1) {
-      return(pipeline2)
+  repeat {
+    pipeline <- pipeline(Z, 1)
+    if (length(pipeline) == 1) {
+      return(pipeline)
     }
 
-    Samples_filtered2 <- pipeline2[[1]]
-    summeryMeanYSortFilteredSampleContig2 <- pipeline2[[2]]
-    contigPCAPC1Filtered2 <- pipeline2[[3]]
-    range2 <- pipeline2[[4]]
-  }
+    samples <- pipeline[[1]]
+    correct_ys <- pipeline[[2]]
+    pc1 <- pipeline[[3]]
+    range <- pipeline[[4]]
+    samples_y <- pipeline[[5]]
 
-  list(Samples_filtered2, summeryMeanYSortFilteredSampleContig2, contigPCAPC1Filtered2, range2, Samples_filteredY2)
+    ### until convergence
+    if ((length(unique(Z$sample)) == length(samples)) && (length(unique(Z$contig)) == length(unique(pc1$contig)))) {
+      return(list(samples, correct_ys, pc1, range, samples_y))
+    } else {
+      Z <- subset(Z, sample %in% samples & contig %in% pc1$contig)
+    }
+  }
 }
