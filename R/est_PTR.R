@@ -20,6 +20,7 @@ est_ptr <- function(X, max_candidate_iter = 10) {
   })
   if (is.null(est_ptrs)) {
     Y <- X
+    browser()
     est_ptrs <- samples_pipeline(Y)
   }
 
