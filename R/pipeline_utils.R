@@ -54,6 +54,8 @@ rand_ordered_contigs <- function(X) {
 #'   \item correctY: corrected coverage
 #' }
 est_ptrs_subset <- function(p) {
+  PC1 <- contig <- NULL
+
   sample_correct_y_PC1 <- merge(reshape2::dcast(subset(p$correct_ys, select = c("sample", "contig", "correctY")), contig ~ sample, value.var = "correctY"), p$pc1)
 
   lm_model_co <- apply(subset(sample_correct_y_PC1, select = -c(contig, PC1)), 2, lm_column, y = sample_correct_y_PC1$PC1)

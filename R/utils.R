@@ -95,6 +95,8 @@ cor_diff <- function(Z) {
 #' @param Z a matrix of coverage
 #' @return a reshaped matrix of coverage
 reshape_filtered <- function(samples_filtered, Z) {
+  contig <- correctY <- NULL
+
   z_filtered <- subset(Z, sample %in% samples_filtered, select = c(sample, contig, correctY))
   z_filtered_wide <- reshape2::dcast(subset(z_filtered, select = c("sample", "contig", "correctY")), contig ~ sample, value.var = "correctY")
 

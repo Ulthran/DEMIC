@@ -13,6 +13,8 @@
 #'
 #' @importFrom stats coef cor cor.test ks.test p.adjust aggregate
 pipeline <- function(Y, i) {
+  PC1 <- contig <- correctY <- NULL
+
   lmeModel <- lme4::lmer(log_cov ~ GC_content + (1 | sample:contig), data = Y, REML = FALSE)
   summeryMeanY <- aggregate(GC_content ~ (sample:contig), Y, FUN = "mean")
   summeryMeanY$s_c <- paste(summeryMeanY$sample, summeryMeanY$contig, sep = ":")
@@ -82,6 +84,8 @@ pipeline <- function(Y, i) {
 #'   \item samples_y: samples filtered for reliable coverage
 #' }
 iterate_pipelines <- function(Z) {
+  contig <- NULL
+
   repeat {
     pipeline <- pipeline(Z, 1)
     if (length(pipeline) == 1) {
