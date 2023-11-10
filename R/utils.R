@@ -130,9 +130,11 @@ consist_transfer <- function(x, y, i) {
 #' @param y second data frame with six columns
 #' @return a data frame with the same six columns but integrated info
 df_transfer <- function(x, y) {
+  estPTR <- TestPTR2 <- coefficient <- pValue <- correctY <- NULL
+
   xy <- data.frame(
     "sample" = sort(union(x$sample, y$sample), method = "shell"),
-    "estPTR" = consist_transfer(subset(x, select = c(sample, estPTR)), subset(y, select = c(sample, TestPTR2)), 1),
+    "est_ptr" = consist_transfer(subset(x, select = c(sample, estPTR)), subset(y, select = c(sample, TestPTR2)), 1),
     "coefficient" = consist_transfer(subset(x, select = c(sample, coefficient)), subset(y, select = c(sample, coefficient)), 1),
     "pValue" = consist_transfer(subset(x, select = c(sample, pValue)), subset(y, select = c(sample, pValue)), 2),
     "cor" = consist_transfer(subset(x, select = c(sample, cor)), subset(y, select = c(sample, cor)), 1),
