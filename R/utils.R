@@ -79,7 +79,7 @@ filter_sample <- function(Z, avg_cutoff, cutoff_ratio) {
 
 #' A function for orientation determination
 #' @param Z a vector of values
-#' @return a subset, where each value has the same majority of orientation
+#' @return a minor subset, where each value has the same orientation
 cor_diff <- function(Z) {
   pos_cor <- Z[Z$cor > 0, ]$sample
   neg_cor <- Z[Z$cor < 0, ]$sample
@@ -96,7 +96,7 @@ cor_diff <- function(Z) {
 #' @return a reshaped matrix of coverage
 reshape_filtered <- function(samples_filtered, Z) {
   z_filtered <- subset(Z, sample %in% samples_filtered, select = c(sample, contig, correctY))
-  z_filtered_wide <- reshape2::dcast(subset(z_filtered, select = c("sample", "contig", "correctY")), contig ~ sample)
+  z_filtered_wide <- reshape2::dcast(subset(z_filtered, select = c("sample", "contig", "correctY")), contig ~ sample, value.var = "correctY")
 
   z_filtered_wide_na <- apply(subset(z_filtered_wide, select = -c(contig)), 1, function(x) length(x[is.na(x)]))
   names(z_filtered_wide_na) <- z_filtered_wide$contig

@@ -13,8 +13,14 @@ pipeline(Y, i)
 \item{i}{cutoff of filtering samples changes according to parameter i; i=1, cutoffRatio is 0.5; i=2, cutoffRatio is 1 as contig is clean}
 }
 \value{
-final filtered samples, matrix of sample, contig and corrected coverages,
-filtered contigs with PC1 values, PC1 range, preliminary filtered samples
+a named list
+\itemize{
+\item samples: final list of filtered samples
+\item correct_ys: dataframe with correct Y values per contig/sample
+\item pc1: PC1 results of PCA per contig
+\item pc1_range: range of PC1
+\item samples_y: samples filtered for reliable coverage
+}
 }
 \description{
 A function representing the pipeline of four steps

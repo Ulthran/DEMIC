@@ -12,11 +12,11 @@ iterate_pipelines(Z)
 \value{
 a named list
 \itemize{
-\item{samples}{vector of final filtered samples}
-\item{correct_ys}{matrix of sample, contig and corrected coverages}
-\item{pc1}{matrix of contig and PC1 values}
-\item{range}{vector of PC1 range}
-\item{samples_y}{UNKNOWNFIXME}
+\item samples: vector of final filtered samples
+\item correct_ys: matrix of sample, contig and corrected coverages
+\item pc1: matrix of contig and PC1 values
+\item pc1_range: vector of PC1 range
+\item samples_y: samples filtered for reliable coverage
 }
 }
 \description{
