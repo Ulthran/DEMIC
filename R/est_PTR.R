@@ -19,9 +19,8 @@ demic_env$MAX_ITER <- 3
 #' }
 #'
 #' @examples
-#' est_ptrs <- est_ptr(max_bin_001)
-#'
-#' est_ptrs
+#' est_ptrs_001 <- est_ptr(max_bin_001)
+#' est_ptrs_001
 #'
 #' @export
 est_ptr <- function(X, max_candidate_iter = 10) {
