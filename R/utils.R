@@ -79,7 +79,7 @@ filter_sample <- function(Z, avg_cutoff, cutoff_ratio) {
 
 #' A function for orientation determination
 #' @param Z a vector of values
-#' @return a subset, where each value has the same majority of orientation
+#' @return a minor subset, where each value has the same orientation
 cor_diff <- function(Z) {
   pos_cor <- Z[Z$cor > 0, ]$sample
   neg_cor <- Z[Z$cor < 0, ]$sample
@@ -95,8 +95,10 @@ cor_diff <- function(Z) {
 #' @param Z a matrix of coverage
 #' @return a reshaped matrix of coverage
 reshape_filtered <- function(samples_filtered, Z) {
+  contig <- correctY <- NULL
+
   z_filtered <- subset(Z, sample %in% samples_filtered, select = c(sample, contig, correctY))
-  z_filtered_wide <- reshape2::dcast(subset(z_filtered, select = c("sample", "contig", "correctY")), contig ~ sample)
+  z_filtered_wide <- reshape2::dcast(subset(z_filtered, select = c("sample", "contig", "correctY")), contig ~ sample, value.var = "correctY")
 
   z_filtered_wide_na <- apply(subset(z_filtered_wide, select = -c(contig)), 1, function(x) length(x[is.na(x)]))
   names(z_filtered_wide_na) <- z_filtered_wide$contig
@@ -130,9 +132,11 @@ consist_transfer <- function(x, y, i) {
 #' @param y second data frame with six columns
 #' @return a data frame with the same six columns but integrated info
 df_transfer <- function(x, y) {
+  estPTR <- TestPTR2 <- coefficient <- pValue <- correctY <- NULL
+
   xy <- data.frame(
     "sample" = sort(union(x$sample, y$sample), method = "shell"),
-    "estPTR" = consist_transfer(subset(x, select = c(sample, estPTR)), subset(y, select = c(sample, TestPTR2)), 1),
+    "est_ptr" = consist_transfer(subset(x, select = c(sample, estPTR)), subset(y, select = c(sample, TestPTR2)), 1),
     "coefficient" = consist_transfer(subset(x, select = c(sample, coefficient)), subset(y, select = c(sample, coefficient)), 1),
     "pValue" = consist_transfer(subset(x, select = c(sample, pValue)), subset(y, select = c(sample, pValue)), 2),
     "cor" = consist_transfer(subset(x, select = c(sample, cor)), subset(y, select = c(sample, cor)), 1),

@@ -1,3 +1,8 @@
+demic_env <- new.env(parent = emptyenv())
+demic_env$MIN_CONTIGS <- 20
+demic_env$MIN_SAMPLES <- 3
+demic_env$MAX_ITER <- 3
+
 #' Main function
 #'
 #' @param X dataframe with coverage matrix
@@ -15,14 +20,12 @@
 #'
 #' @export
 est_ptr <- function(X, max_candidate_iter = 10) {
-  est_ptrs <- suppressWarnings({
-    contigs_pipeline(X)
-  })
-  if (is.null(est_ptrs)) {
-    Y <- X
-    browser()
-    est_ptrs <- samples_pipeline(Y)
-  }
+  verify_input(X)
+
+  contig_est_ptrs <- contigs_pipeline(X)
+  sample_est_ptrs <- samples_pipeline(X, max_candidate_iter = max_candidate_iter)
+
+  est_ptrs <- combine_ests(contig_est_ptrs, sample_est_ptrs)
 
   est_ptrs
 }

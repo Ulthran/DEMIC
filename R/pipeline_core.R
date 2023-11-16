@@ -2,11 +2,19 @@
 #' including GC bias correction, sample filtration, PCA and contig filtration
 #' @param Y a matrix of coverages
 #' @param i cutoff of filtering samples changes according to parameter i; i=1, cutoffRatio is 0.5; i=2, cutoffRatio is 1 as contig is clean
-#' @return final filtered samples, matrix of sample, contig and corrected coverages,
-#' filtered contigs with PC1 values, PC1 range, preliminary filtered samples
+#' @return a named list
+#' \itemize{
+#'   \item samples: final list of filtered samples
+#'   \item correct_ys: dataframe with correct Y values per contig/sample
+#'   \item pc1: PC1 results of PCA per contig
+#'   \item pc1_range: range of PC1
+#'   \item samples_y: samples filtered for reliable coverage
+#' }
 #'
 #' @importFrom stats coef cor cor.test ks.test p.adjust aggregate
 pipeline <- function(Y, i) {
+  PC1 <- contig <- correctY <- NULL
+
   lmeModel <- lme4::lmer(log_cov ~ GC_content + (1 | sample:contig), data = Y, REML = FALSE)
   summeryMeanY <- aggregate(GC_content ~ (sample:contig), Y, FUN = "mean")
   summeryMeanY$s_c <- paste(summeryMeanY$sample, summeryMeanY$contig, sep = ":")
@@ -23,7 +31,6 @@ pipeline <- function(Y, i) {
   ### cutoff of filtering samples changes according to parameter i
   ### i=1, cutoffRatio is 0.5; i=2, cutoffRatio is 1 as contig is clean
   i <- 1
-  dput(summeryMeanYSort2)
   Samples_filteredY <- filter_sample(summeryMeanYSort2, 0, 1 / (3 - i))
   if (length(Samples_filteredY) < 2) {
     return("too few (<2) samples with reliable coverages for the set of contigs")
@@ -48,7 +55,7 @@ pipeline <- function(Y, i) {
   largerClusterContig <- rownames(contigPCAPC1Filtered)
 
   summeryMeanYSort2 <- subset(summeryMeanYSort, contig %in% largerClusterContig)
-  summeryMeanYSortWide <- reshape2::dcast(subset(summeryMeanYSort2, select = c("sample", "contig", "correctY")), contig ~ sample)
+  summeryMeanYSortWide <- reshape2::dcast(subset(summeryMeanYSort2, select = c("sample", "contig", "correctY")), contig ~ sample, value.var = "correctY")
   summeryMeanYSortWide2 <- subset(summeryMeanYSortWide, select = -c(contig))
   rownames(summeryMeanYSortWide2) <- summeryMeanYSortWide$contig
   # summeryMeanYSortWide <- reshapeRmNA(summeryMeanYSort2)
@@ -63,38 +70,33 @@ pipeline <- function(Y, i) {
 
   summeryMeanYSortFilteredSampleContig <- subset(summeryMeanYSort2, sample %in% SamplesFilteredFinal, select = c(sample, contig, correctY))
 
-  return(list(SamplesFilteredFinal, summeryMeanYSortFilteredSampleContig, contigPCAPC1Filtered, range, Samples_filteredY))
+  return(list(samples = SamplesFilteredFinal, correct_ys = summeryMeanYSortFilteredSampleContig, pc1 = contigPCAPC1Filtered, pc1_range = range, samples_y = Samples_filteredY))
 }
 
 #' A function for iteration of pipeline until convergence
 #' @param Z a matrix of coverages
-#' @return final filtered samples, matrix of sample, contig and corrected coverages,
-#' filtered contigs with PC1 values, PC1 range, preliminary filtered samples
+#' @return a named list
+#' \itemize{
+#'   \item samples: vector of final filtered samples
+#'   \item correct_ys: matrix of sample, contig and corrected coverages
+#'   \item pc1: matrix of contig and PC1 values
+#'   \item pc1_range: vector of PC1 range
+#'   \item samples_y: samples filtered for reliable coverage
+#' }
 iterate_pipelines <- function(Z) {
-  pipeline1 <- pipeline(Z, 1)
-  if (length(pipeline1) == 1) {
-    return(pipeline1)
-  }
-  Samples_filtered2 <- pipeline1[[1]]
-  summeryMeanYSortFilteredSampleContig2 <- pipeline1[[2]]
-  contigPCAPC1Filtered2 <- pipeline1[[3]]
-  range2 <- pipeline1[[4]]
-  Samples_filteredY2 <- pipeline1[[5]]
-  rm(pipeline1)
+  contig <- NULL
 
-  ### until convergence
-  while ((length(unique(Z$sample)) != length(Samples_filtered2)) | (length(unique(Z$contig)) != length(unique(contigPCAPC1Filtered2$contig)))) {
-    Z <- subset(Z, sample %in% Samples_filtered2 & contig %in% contigPCAPC1Filtered2$contig)
-    pipeline2 <- pipeline(Z, 1)
-    if (length(pipeline2) == 1) {
-      return(pipeline2)
+  repeat {
+    pipeline <- pipeline(Z, 1)
+    if (length(pipeline) == 1) {
+      return(pipeline)
     }
 
-    Samples_filtered2 <- pipeline2[[1]]
-    summeryMeanYSortFilteredSampleContig2 <- pipeline2[[2]]
-    contigPCAPC1Filtered2 <- pipeline2[[3]]
-    range2 <- pipeline2[[4]]
+    ### until convergence
+    if ((length(unique(Z$sample)) == length(pipeline$samples)) && (length(unique(Z$contig)) == length(unique(pipeline$pc1$contig)))) {
+      return(list(samples = pipeline$samples, correct_ys = pipeline$correct_ys, pc1 = pipeline$pc1, pc1_range = pipeline$pc1_range, samples_y = pipeline$samples_y))
+    } else {
+      Z <- subset(Z, sample %in% pipeline$samples & contig %in% pipeline$pc1$contig)
+    }
   }
-
-  list(Samples_filtered2, summeryMeanYSortFilteredSampleContig2, contigPCAPC1Filtered2, range2, Samples_filteredY2)
 }

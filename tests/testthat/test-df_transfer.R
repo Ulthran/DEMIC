@@ -43,13 +43,13 @@ test_that("df_transfer correctly integrates data frames", {
   # Expected output: The result should be a data frame with the integrated information from both input data frames.
   expected_result <- data.frame(
     sample = c("Sample1", "Sample2", "Sample3", "Sample4"),
-    estPTR = c(0.5, 0.5, 0.6, 0.6),
+    est_ptr = c(0.5, 0.5, 0.6, 0.6),
     coefficient = c(1.0, 1.1, 1.2, 1.3),
     pValue = c(0.01, 0.02, 0.03, 0.04),
     cor = c(0.9, 0.8, 0.7, 0.6),
     correctY = c(10, 20, 30, 40)
   )
-  names(expected_result) <- c("sample", "estPTR", "coefficient", "pValue", "cor", "correctY")
+  names(expected_result) <- c("sample", "est_ptr", "coefficient", "pValue", "cor", "correctY")
   row.names(expected_result) <- c("Sample1", "Sample2", "Sample3", "Sample4")
 
   expect_equal(result, expected_result)

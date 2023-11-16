@@ -10,7 +10,7 @@ cor_diff(Z)
 \item{Z}{a vector of values}
 }
 \value{
-a subset, where each value has the same majority of orientation
+a minor subset, where each value has the same orientation
 }
 \description{
 A function for orientation determination

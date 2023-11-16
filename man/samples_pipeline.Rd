@@ -5,15 +5,17 @@
 \title{Attempt alternative iteration for samples
 Requires at least 3 samples}
 \usage{
-samples_pipeline(X, max_candidate_iter)
+samples_pipeline(X, max_candidate_iter = 10, contigs_pipeline_msg = "")
 }
 \arguments{
-\item{X}{cov3 matrix as a dataframe}
+\item{X}{cov3 dataframe}
 
 \item{max_candidate_iter}{max number of tries for samples pipeline iteration}
+
+\item{contigs_pipeline_msg}{message from contigs_pipeline failure}
 }
 \value{
-est_ptrs matrix on success, NULL otherwise
+est_ptrs dataframe
 }
 \description{
 Attempt alternative iteration for samples

@@ -10,8 +10,14 @@ iterate_pipelines(Z)
 \item{Z}{a matrix of coverages}
 }
 \value{
-final filtered samples, matrix of sample, contig and corrected coverages,
-filtered contigs with PC1 values, PC1 range, preliminary filtered samples
+a named list
+\itemize{
+\item samples: vector of final filtered samples
+\item correct_ys: matrix of sample, contig and corrected coverages
+\item pc1: matrix of contig and PC1 values
+\item pc1_range: vector of PC1 range
+\item samples_y: samples filtered for reliable coverage
+}
 }
 \description{
 A function for iteration of pipeline until convergence

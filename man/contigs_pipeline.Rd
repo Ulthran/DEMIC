@@ -8,10 +8,10 @@ Requires at least 20 contigs}
 contigs_pipeline(X)
 }
 \arguments{
-\item{X}{cov3 matrix as a dataframe}
+\item{X}{cov3 dataframe}
 }
 \value{
-est_ptrs matrix on success, NULL otherwise
+est_ptrs dataframe on success, a message otherwise
 }
 \description{
 Attempt the default iteration for contigs
