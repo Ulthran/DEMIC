@@ -9,7 +9,7 @@ demic_env$MAX_ITER <- 3
 #' (column names: "logCov", "GC", "sample", "contig", "length")
 #' @param max_candidate_iter max allowed iterations for estimation of PTR
 #' (default: 10)
-#' @returns dataframe with the estimated PTRs
+#' @return dataframe with the estimated PTRs
 #' \itemize{
 #'   \item estPTR: estimated PTR values
 #'   \item coefficient: coefficient of linear regression
@@ -17,6 +17,11 @@ demic_env$MAX_ITER <- 3
 #'   \item cor: correlation coefficient
 #'   \item correctY: corrected coverage
 #' }
+#'
+#' @examples
+#' est_ptrs <- est_ptr(max_bin_001)
+#'
+#' est_ptrs
 #'
 #' @export
 est_ptr <- function(X, max_candidate_iter = 10) {

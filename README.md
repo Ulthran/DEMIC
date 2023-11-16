@@ -12,11 +12,18 @@ DEMIC is an R package for comparing bacterial growth rates between metagenomic s
 
 ## Installation
 
+DEMIC can be installed with:
+
+```r
+install.packages("demic")
+```
+
 The development version can be installed from GitHub with:
 
 ```r
 # install.packages("devtools")
 devtools::install_github("Ulthran/DEMIC")
+library(demic)
 ```
 
 ## Basic Usage
