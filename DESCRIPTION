@@ -20,7 +20,7 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Depends: 
-    R (>= 2.10)
+    R (== 4.1.3)
 LazyData: true
 License: GPL (>= 3) + file LICENSE
 URL: https://github.com/Ulthran/DEMIC
