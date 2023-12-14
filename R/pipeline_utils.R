@@ -67,6 +67,14 @@ est_ptrs_subset <- function(p) {
   merge(est_ptrs, aggregate(correctY ~ sample, p$correct_ys, FUN = "median"), by = "sample")
 }
 
+lme_model <- function(X) {
+  lmeModel <- lme4::lmer(log_cov ~ GC_content + (1 | sample:contig), data = X, REML = FALSE)
+  lmeModelCoef <- coef(lmeModel)$`sample:contig`
+  lmeModelCoef$s_c <- rownames(lmeModelCoef)
+
+  lmeModelCoef
+}
+
 #' Compares contig subset x against contig subset y
 #'
 #' @param X input data frame

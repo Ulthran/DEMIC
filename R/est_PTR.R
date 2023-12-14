@@ -27,7 +27,8 @@ est_ptr <- function(X, max_candidate_iter = 10) {
   verify_input(X)
 
   contig_est_ptrs <- contigs_pipeline(X)
-  sample_est_ptrs <- samples_pipeline(X, max_candidate_iter = max_candidate_iter)
+  sample_est_ptrs <-
+    samples_pipeline(X, max_candidate_iter = max_candidate_iter)
 
   est_ptrs <- combine_ests(contig_est_ptrs, sample_est_ptrs)
 

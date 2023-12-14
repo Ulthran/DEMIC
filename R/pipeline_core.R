@@ -15,12 +15,10 @@
 pipeline <- function(Y, i) {
   PC1 <- contig <- correctY <- NULL
 
-  lmeModel <- lme4::lmer(log_cov ~ GC_content + (1 | sample:contig), data = Y, REML = FALSE)
+  lmeModelCoef <- lme_model(Y)
+
   summeryMeanY <- aggregate(GC_content ~ (sample:contig), Y, FUN = "mean")
   summeryMeanY$s_c <- paste(summeryMeanY$sample, summeryMeanY$contig, sep = ":")
-
-  lmeModelCoef <- coef(lmeModel)$`sample:contig`
-  lmeModelCoef$s_c <- rownames(lmeModelCoef)
 
   summeryMeanYSort <- merge(lmeModelCoef, summeryMeanY, by = "s_c")
   summeryMeanYSort$correctY <- summeryMeanYSort$GC_content.x * mean(summeryMeanYSort$GC_content.y) + summeryMeanYSort$`(Intercept)` ###
