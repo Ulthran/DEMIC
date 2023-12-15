@@ -23,7 +23,7 @@ verify_input <- function(X) {
 #' @return a dataframe with the combined estimated PTRs
 combine_ests <- function(contigs, samples) {
   est_ptrs <- contigs
-  #est_ptrs <- list(contigs=contigs, samples=samples)
+  # est_ptrs <- list(contigs=contigs, samples=samples)
   print(samples)
 
   est_ptrs
@@ -74,12 +74,14 @@ est_ptrs_subset <- function(p) {
 #'
 #' @importFrom nlme lme
 lme_model <- function(X) {
-  lmeModel <- lme(log_cov ~ GC_content, data = X, random = ~1 | (sample/contig))
+  lmeModel <- lme(log_cov ~ GC_content, data = X, random = ~ 1 | (sample / contig))
 
   lmeModelCoef <- coef(lmeModel)
   lmeModelCoef$s_c <- rownames(lmeModelCoef)
   lmeModelCoef[] <- lapply(lmeModelCoef, function(x) gsub("/", ":", x))
   rownames(lmeModelCoef) <- gsub("/", ":", rownames(lmeModelCoef))
+  lmeModelCoef$GC_content <- as.numeric(lmeModelCoef$GC_content)
+  lmeModelCoef$`(Intercept)` <- as.numeric(lmeModelCoef$`(Intercept)`)
 
   lmeModelCoef
 }

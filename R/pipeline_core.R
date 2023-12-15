@@ -21,7 +21,7 @@ pipeline <- function(Y, i) {
   summeryMeanY$s_c <- paste(summeryMeanY$sample, summeryMeanY$contig, sep = ":")
 
   summeryMeanYSort <- merge(lmeModelCoef, summeryMeanY, by = "s_c")
-  summeryMeanYSort$correctY <- as.numeric(summeryMeanYSort$GC_content.x) * mean(summeryMeanYSort$GC_content.y) + as.numeric(summeryMeanYSort$`(Intercept)`) ###
+  summeryMeanYSort$correctY <- summeryMeanYSort$GC_content.x * mean(summeryMeanYSort$GC_content.y) + summeryMeanYSort$`(Intercept)` ###
 
   # remove samples with no coverage for most of contigs
   summeryMeanYSort2 <- summeryMeanYSort
