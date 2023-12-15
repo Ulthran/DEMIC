@@ -74,10 +74,9 @@ est_ptrs_subset <- function(p) {
 #' @param X input data frame
 #' @return a dataframe
 #'
-#' @importFrom nlme lme
+#' @importFrom nlme lme lmeControl
 lme_model <- function(X) {
-  set.seed(1234567)
-  lmeModel <- lme(log_cov ~ GC_content, data = X, random = ~ 1 | (sample / contig))
+  lmeModel <- lme(log_cov ~ GC_content, data = X, random = ~ 1 | (sample / contig), control=lmeControl(singular.ok=TRUE, returnObject=TRUE))
 
   lmeModelCoef <- coef(lmeModel)
   lmeModelCoef$s_c <- rownames(lmeModelCoef)
