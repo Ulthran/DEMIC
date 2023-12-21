@@ -26,3 +26,8 @@ dataframe with the estimated PTRs
 \description{
 Main function
 }
+\examples{
+est_ptrs_001 <- est_ptr(max_bin_001)
+est_ptrs_001
+
+}

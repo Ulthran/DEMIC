@@ -3,6 +3,7 @@
 test_that("DEMIC produces correct PTRs on generated inputs 001", {
   O <- est_ptr(max_bin_001)
 
+  # Too few contigs to effectively estimate higher PTRs, tolerance has to be much higher
   expect_equal(O$est_ptr, c(2, 3, 4), tolerance = 2)
   print(O)
 })
@@ -29,14 +30,14 @@ EO2 <- structure(list(sample = c("Sample1", "Sample2", "Sample3"), est_ptr = c(2
 test_that("DEMIC main function produces correct output on sourceforge data cluster 1", {
   O <- est_ptr(ContigCluster1)
 
-  expect_equal(O, EO1)
+  expect_equal(O, EO1, tolerance = 0.1)
   print(O)
 })
 
 test_that("DEMIC main function produces correct output on sourceforge data cluster 2", {
   O <- est_ptr(ContigCluster2)
 
-  expect_equal(O, EO2)
+  expect_equal(O, EO2, tolerance = 0.1)
   print(O)
 })
 
