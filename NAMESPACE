@@ -2,8 +2,6 @@
 
 export(est_ptr)
 importFrom(lme4,lmer)
-importFrom(nlme,lme)
-importFrom(nlme,lmeControl)
 importFrom(stats,aggregate)
 importFrom(stats,anova)
 importFrom(stats,coef)

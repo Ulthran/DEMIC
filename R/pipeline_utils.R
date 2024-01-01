@@ -69,25 +69,6 @@ est_ptrs_subset <- function(p) {
   merge(est_ptrs, aggregate(correctY ~ sample, p$correct_ys, FUN = "median"), by = "sample")
 }
 
-#' Run mixed linear model with random effect
-#'
-#' @param X input data frame
-#' @return a dataframe
-#'
-#' @importFrom nlme lme lmeControl
-lme_model <- function(X) {
-  lmeModel <- lme(log_cov ~ GC_content, data = X, random = ~ 1 | (sample / contig), control=lmeControl(singular.ok=TRUE, returnObject=TRUE))
-
-  lmeModelCoef <- coef(lmeModel)
-  lmeModelCoef$s_c <- rownames(lmeModelCoef)
-  lmeModelCoef[] <- lapply(lmeModelCoef, function(x) gsub("/", ":", x))
-  rownames(lmeModelCoef) <- gsub("/", ":", rownames(lmeModelCoef))
-  lmeModelCoef$GC_content <- as.numeric(lmeModelCoef$GC_content)
-  lmeModelCoef$`(Intercept)` <- as.numeric(lmeModelCoef$`(Intercept)`)
-
-  lmeModelCoef
-}
-
 #' Run mixed linear model with random effect using lme4
 #'
 #' @param X input data frame
