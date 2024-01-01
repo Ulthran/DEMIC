@@ -88,6 +88,20 @@ lme_model <- function(X) {
   lmeModelCoef
 }
 
+#' Run mixed linear model with random effect using lme4
+#'
+#' @param X input data frame
+#' @return a dataframe
+#'
+#' @importFrom lme4 lmer coef
+lme4_model <- function(X) {
+  lmeModel <- lme4::lmer(log_cov ~ GC_content + (1 | sample:contig), data = X, REML = FALSE)
+  lmeModelCoef <- coef(lmeModel)$`sample:contig`
+  lmeModelCoef$s_c <- rownames(lmeModelCoef)
+
+  lmeModelCoef
+}
+
 #' Compares contig subset x against contig subset y
 #'
 #' @param X input data frame
