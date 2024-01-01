@@ -7,10 +7,10 @@ verify_input <- function(X) {
     stop("Input data is empty")
   }
   if (length(levels(X$contig)) < demic_env$MIN_CONTIGS) {
-    stop("Not enough contigs")
+    stop(paste("Not enough contigs", length(levels(X$contig)), "<", demic_env$MIN_CONTIGS))
   }
   if (length(levels(X$sample)) < demic_env$MIN_SAMPLES) {
-    stop("Not enough samples")
+    stop(paste("Not enough samples", length(levels(X$sample)), "<", demic_env$MIN_SAMPLES))
   }
 
   return(TRUE)
@@ -24,6 +24,7 @@ verify_input <- function(X) {
 combine_ests <- function(contigs, samples) {
   est_ptrs <- contigs
   # est_ptrs <- list(contigs=contigs, samples=samples)
+  print("samples_pipeline results:")
   print(samples)
   print("contigs_pipeline results:")
   print(contigs)
