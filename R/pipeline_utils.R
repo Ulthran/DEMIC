@@ -93,9 +93,10 @@ lme_model <- function(X) {
 #' @param X input data frame
 #' @return a dataframe
 #'
-#' @importFrom lme4 lmer coef
+#' @importFrom lme4 lmer
+#' @importFrom stats coef
 lme4_model <- function(X) {
-  lmeModel <- lme4::lmer(log_cov ~ GC_content + (1 | sample:contig), data = X, REML = FALSE)
+  lmeModel <- lmer(log_cov ~ GC_content + (1 | sample:contig), data = X, REML = FALSE)
   lmeModelCoef <- coef(lmeModel)$`sample:contig`
   lmeModelCoef$s_c <- rownames(lmeModelCoef)
 
