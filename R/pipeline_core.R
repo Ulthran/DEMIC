@@ -15,7 +15,7 @@
 pipeline <- function(Y, i) {
   PC1 <- contig <- correctY <- NULL
 
-  lmeModelCoef <- lme_model(Y)
+  lmeModelCoef <- lme4_model(Y)
 
   summeryMeanY <- aggregate(GC_content ~ (sample:contig), Y, FUN = "mean")
   summeryMeanY$s_c <- paste(summeryMeanY$sample, summeryMeanY$contig, sep = ":")
