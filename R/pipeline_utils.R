@@ -12,6 +12,9 @@ verify_input <- function(X) {
   if (length(unique(X$sample)) < demic_env$MIN_SAMPLES) {
     stop(paste("Not enough samples", length(unique(X$sample)), "<", demic_env$MIN_SAMPLES))
   }
+  if (is.null(levels(X$contig))) {
+    stop("levels(X$contig) is empty, did you remember to read in the data with strings as factors? e.g. X <- read.csv('/path/to/file.cov3', stringsAsFactors=TRUE)")
+  }
 
   return(TRUE)
 }
