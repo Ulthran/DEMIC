@@ -8,13 +8,13 @@ test_data <- data.frame(
 
 # Test 1: Check if the output is a data frame
 test_that("output is a data frame", {
-  result <- lme_model(test_data)
+  result <- lme4_model(test_data)
   expect_is(result, "data.frame")
 })
 
 # Test 2: Check if the output data frame has the correct structure
 test_that("output data frame structure", {
-  result <- lme_model(test_data)
+  result <- lme4_model(test_data)
   dput(result)
   expect_named(result, c("(Intercept)", "GC_content", "s_c"))
   expect_equal(nrow(result), 10)
