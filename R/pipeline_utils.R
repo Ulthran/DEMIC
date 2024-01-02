@@ -6,11 +6,11 @@ verify_input <- function(X) {
   if (!length(X)) {
     stop("Input data is empty")
   }
-  if (length(levels(X$contig)) < demic_env$MIN_CONTIGS) {
-    stop(paste("Not enough contigs", length(levels(X$contig)), "<", demic_env$MIN_CONTIGS))
+  if (length(unique(X$contig)) < demic_env$MIN_CONTIGS) {
+    stop(paste("Not enough contigs", length(unique(X$contig)), "<", demic_env$MIN_CONTIGS))
   }
-  if (length(levels(X$sample)) < demic_env$MIN_SAMPLES) {
-    stop(paste("Not enough samples", length(levels(X$sample)), "<", demic_env$MIN_SAMPLES))
+  if (length(unique(X$sample)) < demic_env$MIN_SAMPLES) {
+    stop(paste("Not enough samples", length(unique(X$sample)), "<", demic_env$MIN_SAMPLES))
   }
 
   return(TRUE)
