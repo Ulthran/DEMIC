@@ -2,6 +2,7 @@
 This is a resubmission. In this version I have:
 
 * Removed the LICENSE file and reference to it in the DESCRIPTION file.
+* Removed an additional file that shouldn't have been included in the package.
 
 ## R CMD check results
 
