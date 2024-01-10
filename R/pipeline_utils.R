@@ -27,10 +27,6 @@ verify_input <- function(X) {
 combine_ests <- function(contigs, samples) {
   est_ptrs <- contigs
   # est_ptrs <- list(contigs=contigs, samples=samples)
-  print("samples_pipeline results:")
-  print(samples)
-  print("contigs_pipeline results:")
-  print(contigs)
 
   est_ptrs
 }
