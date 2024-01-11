@@ -6,11 +6,14 @@ verify_input <- function(X) {
   if (!length(X)) {
     stop("Input data is empty")
   }
-  if (length(levels(X$contig)) < demic_env$MIN_CONTIGS) {
-    stop("Not enough contigs")
+  if (length(unique(X$contig)) < demic_env$MIN_CONTIGS) {
+    stop(paste("Not enough contigs", length(unique(X$contig)), "<", demic_env$MIN_CONTIGS))
   }
-  if (length(levels(X$sample)) < demic_env$MIN_SAMPLES) {
-    stop("Not enough samples")
+  if (length(unique(X$sample)) < demic_env$MIN_SAMPLES) {
+    stop(paste("Not enough samples", length(unique(X$sample)), "<", demic_env$MIN_SAMPLES))
+  }
+  if (is.null(levels(X$contig))) {
+    stop("levels(X$contig) is empty, did you remember to read in the data with strings as factors? e.g. X <- read.csv('/path/to/file.cov3', stringsAsFactors=TRUE)")
   }
 
   return(TRUE)
@@ -24,9 +27,6 @@ verify_input <- function(X) {
 combine_ests <- function(contigs, samples) {
   est_ptrs <- contigs
   # est_ptrs <- list(contigs=contigs, samples=samples)
-  print(samples)
-  print("contigs_pipeline results:")
-  print(contigs)
 
   est_ptrs
 }
@@ -78,6 +78,7 @@ est_ptrs_subset <- function(p) {
 #' @importFrom stats coef
 lme4_model <- function(X) {
   lmeModel <- lmer(log_cov ~ GC_content + (1 | sample:contig), data = X, REML = FALSE)
+
   lmeModelCoef <- coef(lmeModel)$`sample:contig`
   lmeModelCoef$s_c <- rownames(lmeModelCoef)
 

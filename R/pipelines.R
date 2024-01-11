@@ -11,7 +11,6 @@ contigs_pipeline <- function(X) {
   nrm <- floor(length(levels(X$contig)) / 5)
 
   for (s2 in 1:demic_env$MAX_ITER) {
-    set.seed(s2)
     contigs <- rand_ordered_contigs(X)
     na_contig_ids <- NULL
 
