@@ -2,38 +2,27 @@
 #' Requires at least 20 contigs
 #'
 #' @param X cov3 dataframe
+#' @param max_attempts max number of attempts to find a valid contig
+#' @param cor_cutoff correlation cutoff between PTR estimates between two subsets of contigs
+#' @param num_subsets number of subsets to split contigs into
 #' @return est_ptrs dataframe on success, a message otherwise
 #'
 #' @importFrom stats aggregate prcomp var
-contigs_pipeline <- function(X) {
-  cor_cutoff <- 0.98
+contigs_pipeline <- function(X, max_attempts = 3, cor_cutoff = 0.98, num_subsets = 5) {
   max_cor <- 0
-  nrm <- floor(length(levels(X$contig)) / 5)
 
-  for (s2 in 1:demic_env$MAX_ITER) {
-    contigs <- rand_ordered_contigs(X)
-    na_contig_ids <- NULL
+  for (i in 1:max_attempts) {
+    contigs <- sample(unique(X$contig))
+    contig_subsets <- split(contigs, cut(seq_along(contigs), num_subsets, labels = FALSE))
 
+    # Compare each subset of contigs with each other subset
     for (x in 1:4) {
-      #if (x %in% na_contig_ids) {
-      #  return(paste("Found invalid contig (", x, ")"))
-      #}
-
       for (y in (x + 1):5) {
-        #if (y %in% na_contig_ids) {
-        #  next
-        #}
-
-        contig_subset_x <- contigs[(nrm * (x - 1) + 1):(nrm * x), 1]
-        contig_subset_y <- contigs[(nrm * (y - 1) + 1):(nrm * y), 1]
-        browser()
-
-        comparison <- compare_x_y(X, contig_subset_x, contig_subset_y, na_contig_ids, cor_cutoff, max_cor)
+        comparison <- compare_x_y(X, contig_subsets[[x]], contig_subsets[[y]], cor_cutoff, max_cor)
         est_ptrs <- comparison$est_ptr
         max_cor <- comparison$max_cor
 
         if (length(est_ptrs) == 0) {
-          na_contig_ids <- c(na_contig_ids, y)
           next
         } else {
           return(est_ptrs)

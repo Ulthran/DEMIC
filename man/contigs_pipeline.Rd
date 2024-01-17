@@ -5,10 +5,16 @@
 \title{Attempt the default iteration for contigs
 Requires at least 20 contigs}
 \usage{
-contigs_pipeline(X)
+contigs_pipeline(X, max_attempts = 3, cor_cutoff = 0.98, num_subsets = 5)
 }
 \arguments{
 \item{X}{cov3 dataframe}
+
+\item{max_attempts}{max number of attempts to find a valid contig}
+
+\item{cor_cutoff}{correlation cutoff between PTR estimates between two subsets of contigs}
+
+\item{num_subsets}{number of subsets to split contigs into}
 }
 \value{
 est_ptrs dataframe on success, a message otherwise

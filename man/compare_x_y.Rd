@@ -4,14 +4,7 @@
 \alias{compare_x_y}
 \title{Compares contig subset x against contig subset y}
 \usage{
-compare_x_y(
-  X,
-  contig_subset_x,
-  contig_subset_y,
-  na_contig_ids,
-  cor_cutoff,
-  max_cor
-)
+compare_x_y(X, contig_subset_x, contig_subset_y, cor_cutoff, max_cor)
 }
 \arguments{
 \item{X}{input data frame}
@@ -20,14 +13,12 @@ compare_x_y(
 
 \item{contig_subset_y}{the second set of contigs}
 
-\item{na_contig_ids}{the set of bad contigs discovered so far}
-
 \item{cor_cutoff}{the correlation cutoff}
 
 \item{max_cor}{the max correlation}
 }
 \value{
-a dataframe
+a named list including the est_ptr dataframe and a max_cor value
 \itemize{
 \item sample: sample
 \item est_ptr: PTR estimate
@@ -36,6 +27,7 @@ a dataframe
 \item cor: correlation coefficient
 \item correctY: corrected coverage
 }
+max_cor: the max correlation achieved
 }
 \description{
 Compares contig subset x against contig subset y

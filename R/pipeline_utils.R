@@ -31,18 +31,6 @@ combine_ests <- function(contigs, samples) {
   est_ptrs
 }
 
-#' Gives a list of the contigs in X in a random order
-#'
-#' @param X input data frame that includes contigs
-#' @return contigs randomly ordered
-rand_ordered_contigs <- function(X) {
-  rands <- sample.int(10000, size = length(levels(X$contig)), replace = FALSE)
-  contigs <- data.frame("Contig" = levels(X$contig), "number" = rands)
-  contigs <- contigs[order(contigs[, 2]), ]
-
-  contigs
-}
-
 #' Get PTR estimates for output of the core pipeline on a subset of data
 #'
 #' @param p is the pipeline named list
@@ -69,28 +57,11 @@ est_ptrs_subset <- function(p) {
   merge(est_ptrs, aggregate(correctY ~ sample, p$correct_ys, FUN = "median"), by = "sample")
 }
 
-#' Run mixed linear model with random effect using lme4
-#'
-#' @param X input data frame
-#' @return a dataframe
-#'
-#' @importFrom lme4 lmer
-#' @importFrom stats coef
-lme4_model <- function(X) {
-  lmeModel <- lmer(log_cov ~ GC_content + (1 | sample:contig), data = X, REML = FALSE)
-
-  lmeModelCoef <- coef(lmeModel)$`sample:contig`
-  lmeModelCoef$s_c <- rownames(lmeModelCoef)
-
-  lmeModelCoef
-}
-
 #' Compares contig subset x against contig subset y
 #'
 #' @param X input data frame
 #' @param contig_subset_x the first set of contigs
 #' @param contig_subset_y the second set of contigs
-#' @param na_contig_ids the set of bad contigs discovered so far
 #' @param cor_cutoff the correlation cutoff
 #' @param max_cor the max correlation
 #' @return a named list including the est_ptr dataframe and a max_cor value
@@ -103,7 +74,7 @@ lme4_model <- function(X) {
 #'   \item correctY: corrected coverage
 #' }
 #' max_cor: the max correlation achieved
-compare_x_y <- function(X, contig_subset_x, contig_subset_y, na_contig_ids, cor_cutoff, max_cor) {
+compare_x_y <- function(X, contig_subset_x, contig_subset_y, cor_cutoff, max_cor) {
   pipeline_x <- iterate_pipelines(X[!X$contig %in% contig_subset_x, ])
   if (length(pipeline_x) == 1) {
     return(paste("Pipeline failed (", pipeline_x, ")"))
