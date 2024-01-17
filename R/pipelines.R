@@ -15,19 +15,22 @@ contigs_pipeline <- function(X) {
     na_contig_ids <- NULL
 
     for (x in 1:4) {
-      if (x %in% na_contig_ids) {
-        return(paste("Found invalid contig (", x, ")"))
-      }
+      #if (x %in% na_contig_ids) {
+      #  return(paste("Found invalid contig (", x, ")"))
+      #}
 
       for (y in (x + 1):5) {
-        if (y %in% na_contig_ids) {
-          next
-        }
+        #if (y %in% na_contig_ids) {
+        #  next
+        #}
 
         contig_subset_x <- contigs[(nrm * (x - 1) + 1):(nrm * x), 1]
         contig_subset_y <- contigs[(nrm * (y - 1) + 1):(nrm * y), 1]
+        browser()
 
-        est_ptrs <- compare_x_y(X, contig_subset_x, contig_subset_y, na_contig_ids, cor_cutoff, max_cor)
+        comparison <- compare_x_y(X, contig_subset_x, contig_subset_y, na_contig_ids, cor_cutoff, max_cor)
+        est_ptrs <- comparison$est_ptr
+        max_cor <- comparison$max_cor
 
         if (length(est_ptrs) == 0) {
           na_contig_ids <- c(na_contig_ids, y)

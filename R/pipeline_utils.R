@@ -31,7 +31,7 @@ combine_ests <- function(contigs, samples) {
   est_ptrs
 }
 
-#' Gives a randomly ordered set of contigs
+#' Gives a list of the contigs in X in a random order
 #'
 #' @param X input data frame that includes contigs
 #' @return contigs randomly ordered
@@ -93,7 +93,7 @@ lme4_model <- function(X) {
 #' @param na_contig_ids the set of bad contigs discovered so far
 #' @param cor_cutoff the correlation cutoff
 #' @param max_cor the max correlation
-#' @return a dataframe
+#' @return a named list including the est_ptr dataframe and a max_cor value
 #' \itemize{
 #'   \item sample: sample
 #'   \item est_ptr: PTR estimate
@@ -102,6 +102,7 @@ lme4_model <- function(X) {
 #'   \item cor: correlation coefficient
 #'   \item correctY: corrected coverage
 #' }
+#' max_cor: the max correlation achieved
 compare_x_y <- function(X, contig_subset_x, contig_subset_y, na_contig_ids, cor_cutoff, max_cor) {
   pipeline_x <- iterate_pipelines(X[!X$contig %in% contig_subset_x, ])
   if (length(pipeline_x) == 1) {
@@ -110,12 +111,12 @@ compare_x_y <- function(X, contig_subset_x, contig_subset_y, na_contig_ids, cor_
 
   pipeline_y <- iterate_pipelines(X[!X$contig %in% contig_subset_y, ])
   if (length(pipeline_y) == 1) {
-    return()
+    return(list(est_ptr = NULL, max_cor = max_cor))
   }
 
   if (length(pipeline_x$pc1$contig) - length(intersect(pipeline_x$pc1$contig, pipeline_y$pc1$contig)) < 3 || length(pipeline_y$pc1$contig) - length(intersect(pipeline_x$pc1$contig, pipeline_y$pc1$contig)) < 3) {
     # Not enough unique contigs in each set
-    return()
+    return(list(est_ptr = NULL, max_cor = max_cor))
   }
 
   est_ptrs_x <- est_ptrs_subset(pipeline_x)
@@ -124,7 +125,7 @@ compare_x_y <- function(X, contig_subset_x, contig_subset_y, na_contig_ids, cor_
   minor_sample1 <- cor_diff(est_ptrs_x)
   minor_sample2 <- cor_diff(est_ptrs_y)
   if ((length(minor_sample1) > 0 & length(minor_sample2) > 0) | (max(est_ptrs_x$est_ptr) < 1.8 & max(est_ptrs_y$est_ptr) < 1.8) | (max(est_ptrs_x$est_ptr) / min(est_ptrs_x$est_ptr) > 5 & max(est_ptrs_y$est_ptr) / min(est_ptrs_y$est_ptr) > 5)) {
-    return()
+    return(list(est_ptr = NULL, max_cor = max_cor))
   }
 
   est_ptrs_x_y <- merge(est_ptrs_x, est_ptrs_y, by = "sample")
@@ -138,6 +139,7 @@ compare_x_y <- function(X, contig_subset_x, contig_subset_y, na_contig_ids, cor_
     if (is.na(cor_current)) {
       return("NA found in correlation calculation")
     }
+
     if (cor_current > max_cor) {
       max_cor <- cor_current
     }
@@ -149,7 +151,7 @@ compare_x_y <- function(X, contig_subset_x, contig_subset_y, na_contig_ids, cor_
       est_ptrs_x_y$cor <- apply(subset(est_ptrs_x_y, select = c("cor.x", "cor.y")), 1, function(x) mean(abs(x)))
       est_ptrs_x_y$correctY <- apply(subset(est_ptrs_x_y, select = c("correctY.x", "correctY.y")), 1, mean)
 
-      subset(est_ptrs_x_y, select = c("sample", "est_ptr", "coefficient", "pValue", "cor", "correctY"))
+      list(est_ptr = subset(est_ptrs_x_y, select = c("sample", "est_ptr", "coefficient", "pValue", "cor", "correctY")), max_cor = max_cor)
     }
   }
 }
