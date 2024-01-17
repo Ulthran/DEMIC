@@ -1,4 +1,5 @@
 ### Test on max_bin outputs from simulated data
+set.seed(123)
 
 test_that("DEMIC produces correct PTRs on generated inputs 001", {
   O <- est_ptr(max_bin_001)
