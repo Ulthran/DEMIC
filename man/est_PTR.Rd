@@ -4,20 +4,17 @@
 \alias{est_ptr}
 \title{Estimate PTRs from both contigs and samples}
 \usage{
-est_ptr(X, max_candidate_iter = 10)
+est_ptr(X)
 }
 \arguments{
 \item{X}{dataframe with coverage matrix
-(column names: "logCov", "GC", "sample", "contig", "length")}
-
-\item{max_candidate_iter}{max allowed iterations for estimation of PTR
-(default: 10)}
+(column names: "log_cov", "GC_content", "sample", "contig", "length")}
 }
 \value{
 named list with results from both methods
 contigs_ptr dataframe with the estimated PTRs
 \itemize{
-\item estPTR: estimated PTR values
+\item est_ptr: estimated PTR values
 \item coefficient: coefficient of linear regression
 \item pValue: p-value of linear regression
 \item cor: correlation coefficient
@@ -25,7 +22,7 @@ contigs_ptr dataframe with the estimated PTRs
 }
 samples_ptr dataframe with the estimated PTRs
 \itemize{
-\item estPTR: estimated PTR values
+\item est_ptr: estimated PTR values
 \item coefficient: coefficient of linear regression
 \item pValue: p-value of linear regression
 \item cor: correlation coefficient
