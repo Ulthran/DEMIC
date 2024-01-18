@@ -9,7 +9,13 @@
 #' @return est_ptrs dataframe on success, a message otherwise
 #'
 #' @importFrom stats aggregate prcomp var
-contigs_pipeline <- function(X, max_attempts = 3, cor_cutoff = 0.98, num_subsets = 5) {
+#'
+#' @examples
+#' est_ptrs_001 <- est_ptr(ContigCluster1)
+#' est_ptrs_001
+#'
+#' @export
+est_ptr_from_contigs <- function(X, max_attempts = 3, cor_cutoff = 0.98, num_subsets = 5) {
   max_cor <- 0
 
   for (i in 1:max_attempts) {
@@ -45,16 +51,21 @@ contigs_pipeline <- function(X, max_attempts = 3, cor_cutoff = 0.98, num_subsets
 #'
 #' @param X cov3 dataframe
 #' @param max_candidate_iter max number of tries for samples pipeline iteration
-#' @param contigs_pipeline_msg message from contigs_pipeline failure
 #' @return est_ptrs dataframe
 #'
 #' @importFrom stats prcomp aggregate
-samples_pipeline <- function(X, max_candidate_iter = 10, contigs_pipeline_msg = "") {
+#'
+#' @examples
+#' est_ptrs_001 <- est_ptr(ContigCluster1)
+#' est_ptrs_001
+#'
+#' @export
+est_ptr_from_samples <- function(X, max_candidate_iter = 10) {
   contig <- PC1 <- NULL
 
   pipelineY <- iterate_pipelines(X)
   if (length(pipelineY) == 1) {
-    stop(paste("contigs_pipeline: ", contigs_pipeline_msg, "\nsamples_pipeline: pipeline failed"))
+    stop("samples_pipeline: pipeline failed")
   }
   Samples_filtered1 <- pipelineY[[1]]
   summeryMeanYSortFilteredSampleContig1 <- pipelineY[[2]]
@@ -72,10 +83,13 @@ samples_pipeline <- function(X, max_candidate_iter = 10, contigs_pipeline_msg = 
   est_ptrs3 <- merge(est_ptrs, aggregate(correctY ~ sample, summeryMeanYSortFilteredSampleContig1, FUN = "median"), by = "sample")
 
   minor_sample3 <- cor_diff(est_ptrs3)
-
+  print(1)
   if (length(minor_sample3) == 0 & max(est_ptrs3$est_ptr) >= 1.8 & max(est_ptrs3$est_ptr) / min(est_ptrs3$est_ptr) <= 5) {
     est_ptrs2 <- est_ptrs3
+    print(2)
+    print(est_ptrs2)
   } else if ((length(minor_sample3) > 0 | max(est_ptrs3$est_ptr) < 1.8 | max(est_ptrs3$est_ptr) / min(est_ptrs3$est_ptr) > 5) & length(Samples_filteredY1) >= 6) {
+    print(3)
     est_ptrfinal <- NULL
     for (s in 1:max_candidate_iter) {
       set.seed(s)

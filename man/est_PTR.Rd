@@ -2,7 +2,7 @@
 % Please edit documentation in R/est_PTR.R
 \name{est_ptr}
 \alias{est_ptr}
-\title{Main function}
+\title{Estimate PTRs from both contigs and samples}
 \usage{
 est_ptr(X, max_candidate_iter = 10)
 }
@@ -14,7 +14,16 @@ est_ptr(X, max_candidate_iter = 10)
 (default: 10)}
 }
 \value{
-dataframe with the estimated PTRs
+named list with results from both methods
+contigs_ptr dataframe with the estimated PTRs
+\itemize{
+\item estPTR: estimated PTR values
+\item coefficient: coefficient of linear regression
+\item pValue: p-value of linear regression
+\item cor: correlation coefficient
+\item correctY: corrected coverage
+}
+samples_ptr dataframe with the estimated PTRs
 \itemize{
 \item estPTR: estimated PTR values
 \item coefficient: coefficient of linear regression
@@ -24,10 +33,10 @@ dataframe with the estimated PTRs
 }
 }
 \description{
-Main function
+Estimate PTRs from both contigs and samples
 }
 \examples{
-est_ptrs_001 <- est_ptr(max_bin_001)
+est_ptrs_001 <- est_ptr(ContigCluster1)
 est_ptrs_001
 
 }

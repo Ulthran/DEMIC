@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{cor_diff}
 \alias{cor_diff}
-\title{A function for orientation determination}
+\title{Determine the majority orientation of the input PTR estimates correlations}
 \usage{
 cor_diff(Z)
 }
@@ -13,5 +13,5 @@ cor_diff(Z)
 a minor subset, where each value has the same orientation
 }
 \description{
-A function for orientation determination
+Determine the majority orientation of the input PTR estimates correlations
 }
