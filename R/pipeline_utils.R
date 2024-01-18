@@ -76,17 +76,12 @@ est_ptrs_subset <- function(p) {
 #' max_cor: the max correlation achieved
 compare_x_y <- function(X, contig_subset_x, contig_subset_y, cor_cutoff, max_cor) {
   pipeline_x <- iterate_pipelines(X[!X$contig %in% contig_subset_x, ])
-  if (length(pipeline_x) == 1) {
-    return(paste("Pipeline failed (", pipeline_x, ")"))
-  }
-
   pipeline_y <- iterate_pipelines(X[!X$contig %in% contig_subset_y, ])
-  if (length(pipeline_y) == 1) {
-    return(list(est_ptr = NULL, max_cor = max_cor))
-  }
 
-  if (length(pipeline_x$pc1$contig) - length(intersect(pipeline_x$pc1$contig, pipeline_y$pc1$contig)) < 3 || length(pipeline_y$pc1$contig) - length(intersect(pipeline_x$pc1$contig, pipeline_y$pc1$contig)) < 3) {
-    # Not enough unique contigs in each set
+  pipeline_fail_Q = (length(pipeline_y) == 1) || (length(pipeline_x) == 1)
+  too_much_overlap_Q = length(pipeline_x$pc1$contig) - length(intersect(pipeline_x$pc1$contig, pipeline_y$pc1$contig)) < 3 || length(pipeline_y$pc1$contig) - length(intersect(pipeline_x$pc1$contig, pipeline_y$pc1$contig)) < 3
+
+  if (pipeline_fail_Q || too_much_overlap_Q) {
     return(list(est_ptr = NULL, max_cor = max_cor))
   }
 
@@ -95,7 +90,9 @@ compare_x_y <- function(X, contig_subset_x, contig_subset_y, cor_cutoff, max_cor
 
   minor_sample1 <- cor_diff(est_ptrs_x)
   minor_sample2 <- cor_diff(est_ptrs_y)
-  if ((length(minor_sample1) > 0 & length(minor_sample2) > 0) | (max(est_ptrs_x$est_ptr) < 1.8 & max(est_ptrs_y$est_ptr) < 1.8) | (max(est_ptrs_x$est_ptr) / min(est_ptrs_x$est_ptr) > 5 & max(est_ptrs_y$est_ptr) / min(est_ptrs_y$est_ptr) > 5)) {
+
+  # The rest of these filtering clauses are just weird, probably shouldn't be hardcoded cutoffs like this
+  if ((length(minor_sample1) > 0 & length(minor_sample2) > 0)) { #| (max(est_ptrs_x$est_ptr) < 1.8 & max(est_ptrs_y$est_ptr) < 1.8) | (max(est_ptrs_x$est_ptr) / min(est_ptrs_x$est_ptr) > 5 & max(est_ptrs_y$est_ptr) / min(est_ptrs_y$est_ptr) > 5)) {
     return(list(est_ptr = NULL, max_cor = max_cor))
   }
 

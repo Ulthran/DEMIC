@@ -1,5 +1,6 @@
-#' Attempt the default iteration for contigs
-#' Requires at least 20 contigs
+#' Tries up to max_attempts times to compare each permutation of random
+#' subsets of contigs from X, and returns the PTR estimate if a valid one comes
+#' back from the comparisons
 #'
 #' @param X cov3 dataframe
 #' @param max_attempts max number of attempts to find a valid contig
@@ -22,19 +23,18 @@ contigs_pipeline <- function(X, max_attempts = 3, cor_cutoff = 0.98, num_subsets
         est_ptrs <- comparison$est_ptr
         max_cor <- comparison$max_cor
 
-        if (length(est_ptrs) == 0) {
-          next
-        } else {
+        if (length(est_ptrs) != 0) {
           return(est_ptrs)
         }
       }
     }
 
-    if (max_cor < 0.9) {
-      return(paste("Correlation too low (", max_cor, ") (min 0.90)"))
-    } else if (max_cor < 0.95) {
-      cor_cutoff <- 0.95
-    }
+    # This seems kinda gimmicky, to give up if correlation from this attempt was too low but to set the bar lower if it was just below
+    #if (max_cor < 0.9) {
+    #  return(paste("Correlation too low (", max_cor, ") (min ", cor_cutoff, ")"))
+    #} else if (max_cor < 0.95) {
+    #  cor_cutoff <- 0.95
+    #}
   }
 
   return("Contigs pipeline completed without success")

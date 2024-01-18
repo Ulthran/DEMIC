@@ -77,10 +77,11 @@ filter_sample <- function(Z, avg_cutoff, cutoff_ratio) {
   samples_filtered
 }
 
-#' A function for orientation determination
+#' Determine the majority orientation of the input PTR estimates correlations
 #' @param Z a vector of values
 #' @return a minor subset, where each value has the same orientation
 cor_diff <- function(Z) {
+  browser()
   pos_cor <- Z[Z$cor > 0, ]$sample
   neg_cor <- Z[Z$cor < 0, ]$sample
   if (length(pos_cor) > length(neg_cor)) {
