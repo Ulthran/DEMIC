@@ -12,7 +12,7 @@ est_ptr(X)
 }
 \value{
 named list with results from both methods
-contigs_ptr dataframe with the estimated PTRs
+contigs_ptr dataframe with the estimated PTRs on success, null otherwise
 \itemize{
 \item est_ptr: estimated PTR values
 \item coefficient: coefficient of linear regression
@@ -20,7 +20,7 @@ contigs_ptr dataframe with the estimated PTRs
 \item cor: correlation coefficient
 \item correctY: corrected coverage
 }
-samples_ptr dataframe with the estimated PTRs
+samples_ptr dataframe with the estimated PTRs on success, null otherwise
 \itemize{
 \item est_ptr: estimated PTR values
 \item coefficient: coefficient of linear regression

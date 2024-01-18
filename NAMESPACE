@@ -3,6 +3,7 @@
 export(est_ptr)
 export(est_ptr_from_contigs)
 export(est_ptr_from_samples)
+export(test_variance)
 importFrom(lme4,lmer)
 importFrom(stats,aggregate)
 importFrom(stats,anova)

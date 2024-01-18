@@ -19,18 +19,6 @@ verify_input <- function(X) {
   return(TRUE)
 }
 
-#' Combine output from the contigs pipeline and samples pipeline
-#'
-#' @param contigs output from the contigs pipeline
-#' @param samples output from the samples pipeline
-#' @return a dataframe with the combined estimated PTRs
-combine_ests <- function(contigs, samples) {
-  est_ptrs <- contigs
-  # est_ptrs <- list(contigs=contigs, samples=samples)
-
-  est_ptrs
-}
-
 #' Get PTR estimates for output of the core pipeline on a subset of data
 #'
 #' @param p is the pipeline named list
@@ -105,7 +93,7 @@ compare_x_y <- function(X, contig_subset_x, contig_subset_y, cor_cutoff, max_cor
     }
     cor_current <- cor(est_ptrs_x_y$est_ptr.x, est_ptrs_x_y$est_ptr.y)
     if (is.na(cor_current)) {
-      return("NA found in correlation calculation")
+      return(list(est_ptr = NULL, max_cor = max_cor))
     }
 
     if (cor_current > max_cor) {

@@ -18,7 +18,14 @@ est_ptr_from_contigs(X, max_attempts = 3, cor_cutoff = 0.98, num_subsets = 5)
 \item{num_subsets}{number of subsets to split contigs into}
 }
 \value{
-est_ptrs dataframe on success, a message otherwise
+est_ptrs dataframe on success, null otherwise
+\itemize{
+\item est_ptr: estimated PTR values
+\item coefficient: coefficient of linear regression
+\item pValue: p-value of linear regression
+\item cor: correlation coefficient
+\item correctY: corrected coverage
+}
 }
 \description{
 Tries up to max_attempts times to compare each permutation of random
@@ -26,7 +33,7 @@ subsets of contigs from X, and returns the PTR estimate if a valid one comes
 back from the comparisons
 }
 \examples{
-est_ptrs_001 <- est_ptr(ContigCluster1)
+est_ptrs_001 <- est_ptr_from_contigs(ContigCluster1)
 est_ptrs_001
 
 }

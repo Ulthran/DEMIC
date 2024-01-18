@@ -13,14 +13,21 @@ est_ptr_from_samples(X, max_candidate_iter = 10)
 \item{max_candidate_iter}{max number of tries for samples pipeline iteration}
 }
 \value{
-est_ptrs dataframe
+est_ptrs dataframe on success, null otherwise
+\itemize{
+\item est_ptr: estimated PTR values
+\item coefficient: coefficient of linear regression
+\item pValue: p-value of linear regression
+\item cor: correlation coefficient
+\item correctY: corrected coverage
+}
 }
 \description{
 Attempt alternative iteration for samples
 Requires at least 3 samples
 }
 \examples{
-est_ptrs_001 <- est_ptr(ContigCluster1)
+est_ptrs_001 <- est_ptr_from_samples(ContigCluster1)
 est_ptrs_001
 
 }

@@ -8,7 +8,7 @@ demic_env$MAX_ITER <- 3
 #' @param X dataframe with coverage matrix
 #' (column names: "log_cov", "GC_content", "sample", "contig", "length")
 #' @return named list with results from both methods
-#' contigs_ptr dataframe with the estimated PTRs
+#' contigs_ptr dataframe with the estimated PTRs on success, null otherwise
 #' \itemize{
 #'   \item est_ptr: estimated PTR values
 #'   \item coefficient: coefficient of linear regression
@@ -16,7 +16,7 @@ demic_env$MAX_ITER <- 3
 #'   \item cor: correlation coefficient
 #'   \item correctY: corrected coverage
 #' }
-#' samples_ptr dataframe with the estimated PTRs
+#' samples_ptr dataframe with the estimated PTRs on success, null otherwise
 #' \itemize{
 #'   \item est_ptr: estimated PTR values
 #'   \item coefficient: coefficient of linear regression
@@ -37,6 +37,7 @@ est_ptr <- function(X) {
     contig_est_ptrs <- est_ptr_from_contigs(X),
     error = function(e) {
       message("Error in est_ptr_from_contigs: ", e)
+      contig_est_ptrs <- NULL
     }
   )
 
@@ -44,10 +45,9 @@ est_ptr <- function(X) {
     sample_est_ptrs <- est_ptr_from_samples(X),
     error = function(e) {
       message("Error in est_ptr_from_samples: ", e)
+      sample_est_ptrs <- NULL
     }
   )
 
-  est_ptrs <- combine_ests(contig_est_ptrs, sample_est_ptrs)
-
-  est_ptrs
+  list(contigs_ptr = contig_est_ptrs, samples_ptr = sample_est_ptrs)
 }

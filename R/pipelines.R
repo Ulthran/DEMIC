@@ -6,12 +6,19 @@
 #' @param max_attempts max number of attempts to find a valid contig
 #' @param cor_cutoff correlation cutoff between PTR estimates between two subsets of contigs
 #' @param num_subsets number of subsets to split contigs into
-#' @return est_ptrs dataframe on success, a message otherwise
+#' @return est_ptrs dataframe on success, null otherwise
+#' \itemize{
+#'   \item est_ptr: estimated PTR values
+#'   \item coefficient: coefficient of linear regression
+#'   \item pValue: p-value of linear regression
+#'   \item cor: correlation coefficient
+#'   \item correctY: corrected coverage
+#' }
 #'
 #' @importFrom stats aggregate prcomp var
 #'
 #' @examples
-#' est_ptrs_001 <- est_ptr(ContigCluster1)
+#' est_ptrs_001 <- est_ptr_from_contigs(ContigCluster1)
 #' est_ptrs_001
 #'
 #' @export
@@ -34,16 +41,7 @@ est_ptr_from_contigs <- function(X, max_attempts = 3, cor_cutoff = 0.98, num_sub
         }
       }
     }
-
-    # This seems kinda gimmicky, to give up if correlation from this attempt was too low but to set the bar lower if it was just below
-    #if (max_cor < 0.9) {
-    #  return(paste("Correlation too low (", max_cor, ") (min ", cor_cutoff, ")"))
-    #} else if (max_cor < 0.95) {
-    #  cor_cutoff <- 0.95
-    #}
   }
-
-  return("Contigs pipeline completed without success")
 }
 
 #' Attempt alternative iteration for samples
@@ -51,12 +49,19 @@ est_ptr_from_contigs <- function(X, max_attempts = 3, cor_cutoff = 0.98, num_sub
 #'
 #' @param X cov3 dataframe
 #' @param max_candidate_iter max number of tries for samples pipeline iteration
-#' @return est_ptrs dataframe
+#' @return est_ptrs dataframe on success, null otherwise
+#' \itemize{
+#'   \item est_ptr: estimated PTR values
+#'   \item coefficient: coefficient of linear regression
+#'   \item pValue: p-value of linear regression
+#'   \item cor: correlation coefficient
+#'   \item correctY: corrected coverage
+#' }
 #'
 #' @importFrom stats prcomp aggregate
 #'
 #' @examples
-#' est_ptrs_001 <- est_ptr(ContigCluster1)
+#' est_ptrs_001 <- est_ptr_from_samples(ContigCluster1)
 #' est_ptrs_001
 #'
 #' @export
@@ -83,16 +88,13 @@ est_ptr_from_samples <- function(X, max_candidate_iter = 10) {
   est_ptrs3 <- merge(est_ptrs, aggregate(correctY ~ sample, summeryMeanYSortFilteredSampleContig1, FUN = "median"), by = "sample")
 
   minor_sample3 <- cor_diff(est_ptrs3)
-  print(1)
+
   if (length(minor_sample3) == 0 & max(est_ptrs3$est_ptr) >= 1.8 & max(est_ptrs3$est_ptr) / min(est_ptrs3$est_ptr) <= 5) {
     est_ptrs2 <- est_ptrs3
-    print(2)
-    print(est_ptrs2)
   } else if ((length(minor_sample3) > 0 | max(est_ptrs3$est_ptr) < 1.8 | max(est_ptrs3$est_ptr) / min(est_ptrs3$est_ptr) > 5) & length(Samples_filteredY1) >= 6) {
     print(3)
     est_ptrfinal <- NULL
     for (s in 1:max_candidate_iter) {
-      set.seed(s)
       designateR <- sample.int(10000, size = length(Samples_filteredY1), replace = FALSE)
       SampleDesignateR <- data.frame("Sample" = Samples_filteredY1, "number" = designateR)
       SampleDesignateRSort <- SampleDesignateR[order(SampleDesignateR[, 2]), ]
