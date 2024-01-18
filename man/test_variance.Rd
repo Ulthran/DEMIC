@@ -14,6 +14,8 @@ test_variance(X, iterations = 30)
 \value{
 named list of stats on PTR estimates
 \itemize{
+\item all_sd: standard deviation of PTR estimates from all method
+\item all_mean: mean of PTR estimates from all method
 \item contigs_sd: standard deviation of PTR estimates from contigs method
 \item contigs_mean: mean of PTR estimates from contigs method
 \item samples_sd: standard deviation of PTR estimates from samples method

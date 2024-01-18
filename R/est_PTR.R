@@ -3,11 +3,19 @@ demic_env$MIN_CONTIGS <- 20
 demic_env$MIN_SAMPLES <- 3
 demic_env$MAX_ITER <- 3
 
-#' Estimate PTRs from both contigs and samples
+#' Estimate PTRs using all input data as well as using subsets of contigs and samples
 #'
 #' @param X dataframe with coverage matrix
 #' (column names: "log_cov", "GC_content", "sample", "contig", "length")
-#' @return named list with results from both methods
+#' @return named list with results from all three methods
+#' all_ptr dataframe with the estimated PTRs on success, null otherwise
+#' \itemize{
+#'   \item est_ptr: estimated PTR values
+#'   \item coefficient: coefficient of linear regression
+#'   \item pValue: p-value of linear regression
+#'   \item cor: correlation coefficient
+#'   \item correctY: corrected coverage
+#' }
 #' contigs_ptr dataframe with the estimated PTRs on success, null otherwise
 #' \itemize{
 #'   \item est_ptr: estimated PTR values
@@ -34,6 +42,14 @@ est_ptr <- function(X) {
   verify_input(X)
 
   tryCatch(
+    all_est_ptrs <- est_ptr_from_all(X),
+    error = function(e) {
+      message("Error in est_ptr_from_all: ", e)
+      all_est_ptrs <- NULL
+    }
+  )
+
+  tryCatch(
     contig_est_ptrs <- est_ptr_from_contigs(X),
     error = function(e) {
       message("Error in est_ptr_from_contigs: ", e)
@@ -49,5 +65,5 @@ est_ptr <- function(X) {
     }
   )
 
-  list(contigs_ptr = contig_est_ptrs, samples_ptr = sample_est_ptrs)
+  list(all_ptr = all_est_ptrs, contigs_ptr = contig_est_ptrs, samples_ptr = sample_est_ptrs)
 }

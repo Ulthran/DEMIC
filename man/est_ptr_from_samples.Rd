@@ -2,8 +2,9 @@
 % Please edit documentation in R/pipelines.R
 \name{est_ptr_from_samples}
 \alias{est_ptr_from_samples}
-\title{Attempt alternative iteration for samples
-Requires at least 3 samples}
+\title{Tries up to max_attempts times to compare each permutation of random
+subsets of contigs from X, and returns the PTR estimate if a valid one comes
+back from the comparisons}
 \usage{
 est_ptr_from_samples(X, max_candidate_iter = 10)
 }
@@ -23,8 +24,9 @@ est_ptrs dataframe on success, null otherwise
 }
 }
 \description{
-Attempt alternative iteration for samples
-Requires at least 3 samples
+Tries up to max_attempts times to compare each permutation of random
+subsets of contigs from X, and returns the PTR estimate if a valid one comes
+back from the comparisons
 }
 \examples{
 est_ptrs_001 <- est_ptr_from_samples(ContigCluster1)

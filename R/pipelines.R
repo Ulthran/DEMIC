@@ -1,3 +1,32 @@
+#' Tries to estimate based on the whole input dataset
+#'
+#' @param X cov3 dataframe
+#' @return est_ptrs dataframe on success, null otherwise
+#' \itemize{
+#'  \item est_ptr: estimated PTR values
+#'  \item coefficient: coefficient of linear regression
+#'  \item pValue: p-value of linear regression
+#'  \item cor: correlation coefficient
+#'  \item correctY: corrected coverage
+#' }
+#'
+#' @examples
+#' est_ptrs_001 <- est_ptr_from_all(ContigCluster1)
+#' est_ptrs_001
+#'
+#' @export
+est_ptr_from_all <- function(X) {
+  p <- iterate_pipelines(X)
+  est_ptrs <- est_ptrs_subset(p)
+
+  if (length(cor_diff(est_ptrs)) > 0) {
+    warning("Not all estimates are correlated in the same direction")
+    return(NULL)
+  }
+
+  est_ptrs
+}
+
 #' Tries up to max_attempts times to compare each permutation of random
 #' subsets of contigs from X, and returns the PTR estimate if a valid one comes
 #' back from the comparisons
@@ -44,8 +73,9 @@ est_ptr_from_contigs <- function(X, max_attempts = 3, cor_cutoff = 0.98, num_sub
   }
 }
 
-#' Attempt alternative iteration for samples
-#' Requires at least 3 samples
+#' Tries up to max_attempts times to compare each permutation of random
+#' subsets of contigs from X, and returns the PTR estimate if a valid one comes
+#' back from the comparisons
 #'
 #' @param X cov3 dataframe
 #' @param max_candidate_iter max number of tries for samples pipeline iteration
@@ -88,10 +118,11 @@ est_ptr_from_samples <- function(X, max_candidate_iter = 10) {
   est_ptrs3 <- merge(est_ptrs, aggregate(correctY ~ sample, summeryMeanYSortFilteredSampleContig1, FUN = "median"), by = "sample")
 
   minor_sample3 <- cor_diff(est_ptrs3)
-
+  print(1)
   if (length(minor_sample3) == 0 & max(est_ptrs3$est_ptr) >= 1.8 & max(est_ptrs3$est_ptr) / min(est_ptrs3$est_ptr) <= 5) {
     est_ptrs2 <- est_ptrs3
-  } else if ((length(minor_sample3) > 0 | max(est_ptrs3$est_ptr) < 1.8 | max(est_ptrs3$est_ptr) / min(est_ptrs3$est_ptr) > 5) & length(Samples_filteredY1) >= 6) {
+    print(2)
+  } else {# if ((length(minor_sample3) > 0 | max(est_ptrs3$est_ptr) < 1.8 | max(est_ptrs3$est_ptr) / min(est_ptrs3$est_ptr) > 5) & length(Samples_filteredY1) >= 6) {
     print(3)
     est_ptrfinal <- NULL
     for (s in 1:max_candidate_iter) {
@@ -122,6 +153,7 @@ est_ptr_from_samples <- function(X, max_candidate_iter = 10) {
         est_ptrs <- data.frame("est_ptr" = 2^abs(lm_model_co[1, ] * (rangeX[1] - rangeX[2])), "coefficient" = lm_model_co[1, ], "pValue" = lm_model_co[2, ], "cor" = cor_model)
         est_ptrs$sample <- rownames(est_ptrs)
         est_ptrsEach[[q + 1]] <- merge(est_ptrs, aggregate(correctY ~ sample, summeryMeanYSortFilteredSampleContig1, FUN = "median"), by = "sample")
+        browser()
       }
       if (length(est_ptrsEach) < 3) {
         next
@@ -140,6 +172,7 @@ est_ptr_from_samples <- function(X, max_candidate_iter = 10) {
           minor_sample_r <- cor_diff(est_ptrsr)
 
           corqr <- cor(est_ptrsInt[, 3], est_ptrsInt[, 2])
+          bro
           if (corqr > cormax & length(minor_sample_q) == 0 & length(minor_sample_r) == 0) {
             cormax <- corqr
             qmax <- est_ptrsq
@@ -177,7 +210,7 @@ est_ptr_from_samples <- function(X, max_candidate_iter = 10) {
     } else {
       est_ptrs2 <- est_ptrfinal
     }
-  } else {
-    stop("fail to calculate consistent PTRs!")
-  }
+  }# else {
+  #  stop("fail to calculate consistent PTRs!")
+  #}
 }
