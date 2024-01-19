@@ -136,7 +136,7 @@ df_transfer <- function(x, y) {
 
   xy <- data.frame(
     "sample" = sort(union(x$sample, y$sample), method = "shell"),
-    "est_ptr" = consist_transfer(subset(x, select = c(sample, estPTR)), subset(y, select = c(sample, TestPTR2)), 1),
+    "est_ptr" = consist_transfer(subset(x, select = c(sample, est_ptr)), subset(y, select = c(sample, test_ptr2)), 1),
     "coefficient" = consist_transfer(subset(x, select = c(sample, coefficient)), subset(y, select = c(sample, coefficient)), 1),
     "pValue" = consist_transfer(subset(x, select = c(sample, pValue)), subset(y, select = c(sample, pValue)), 2),
     "cor" = consist_transfer(subset(x, select = c(sample, cor)), subset(y, select = c(sample, cor)), 1),

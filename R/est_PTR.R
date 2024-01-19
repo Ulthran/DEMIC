@@ -1,8 +1,3 @@
-demic_env <- new.env(parent = emptyenv())
-demic_env$MIN_CONTIGS <- 20
-demic_env$MIN_SAMPLES <- 3
-demic_env$MAX_ITER <- 3
-
 #' Estimate PTRs using all input data as well as using subsets of contigs and samples
 #'
 #' @param X dataframe with coverage matrix
@@ -39,29 +34,27 @@ demic_env$MAX_ITER <- 3
 #'
 #' @export
 est_ptr <- function(X) {
-  verify_input(X)
-
   tryCatch(
     all_est_ptrs <- est_ptr_from_all(X),
     error = function(e) {
-      message("Error in est_ptr_from_all: ", e)
       all_est_ptrs <- NULL
+      message("Error in est_ptr_from_all: ", e)
     }
   )
 
   tryCatch(
-    contig_est_ptrs <- est_ptr_from_contigs(X),
+    contig_est_ptrs <- est_ptr_on(X, "contig"),
     error = function(e) {
-      message("Error in est_ptr_from_contigs: ", e)
       contig_est_ptrs <- NULL
+      message("Error in est_ptr_on_contigs: ", e)
     }
   )
 
   tryCatch(
-    sample_est_ptrs <- est_ptr_from_samples(X),
+    sample_est_ptrs <- est_ptr_on(X, "sample"),
     error = function(e) {
-      message("Error in est_ptr_from_samples: ", e)
       sample_est_ptrs <- NULL
+      message("Error in est_ptr_on_samples: ", e)
     }
   )
 
