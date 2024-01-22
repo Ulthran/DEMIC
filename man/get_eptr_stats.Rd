@@ -26,7 +26,7 @@ named list of stats on PTR estimates
 Generate a variety of stats on PTR estimates for a given dataset
 }
 \examples{
-stats <- get_eptr_stats(ContigCluster1)
+stats <- get_eptr_stats(max_bin_003, 2)
 stats
 
 }

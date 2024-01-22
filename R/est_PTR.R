@@ -29,7 +29,7 @@
 #' }
 #'
 #' @examples
-#' est_ptrs_001 <- est_ptr(ContigCluster1)
+#' est_ptrs_001 <- est_ptr(max_bin_003)
 #' est_ptrs_001
 #'
 #' @export

@@ -16,7 +16,7 @@
 #' @importFrom stats sd
 #'
 #' @examples
-#' stats <- get_eptr_stats(ContigCluster1)
+#' stats <- get_eptr_stats(max_bin_003, 2)
 #' stats
 #'
 #' @export

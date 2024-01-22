@@ -11,7 +11,7 @@
 #' }
 #'
 #' @examples
-#' est_ptrs_001 <- est_ptr_on_all(ContigCluster1)
+#' est_ptrs_001 <- est_ptr_on_all(max_bin_003)
 #' est_ptrs_001
 #'
 #' @export
@@ -50,11 +50,11 @@ est_ptr_on_all <- function(X) {
 #' }
 #'
 #' @examples
-#' est_ptrs_001_on_contigs <- est_ptr_on(ContigCluster1, "contig", num_subsets = 5)
+#' est_ptrs_001_on_contigs <- est_ptr_on(max_bin_003, "contig", num_subsets = 5)
 #' est_ptrs_001_on_contigs
 #'
-#' est_ptrs_001_on_samples <- est_ptr_on(ContigCluster1, "sample")
-#' est_ptrs_001_on_samples
+#' est_ptrs_001_on_samples <- est_ptr_on(max_bin_003, "sample")
+#' is.null(est_ptrs_001_on_samples)
 #'
 #' @export
 est_ptr_on <- function(X, subset_on, max_attempts = 10, num_subsets = 3, cor_cutoff = 0.98) {
