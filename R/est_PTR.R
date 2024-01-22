@@ -34,8 +34,10 @@
 #'
 #' @export
 est_ptr <- function(X) {
+  verify_input(X)
+
   tryCatch(
-    all_est_ptrs <- est_ptr_from_all(X),
+    all_est_ptrs <- est_ptr_on_all(X),
     error = function(e) {
       all_est_ptrs <- NULL
       message("Error in est_ptr_from_all: ", e)
@@ -59,4 +61,27 @@ est_ptr <- function(X) {
   )
 
   list(all_ptr = all_est_ptrs, contigs_ptr = contig_est_ptrs, samples_ptr = sample_est_ptrs)
+}
+
+#' Verify that the input dataframe/matrix is valid
+#'
+#' @param X dataframe/matrix with cov3 information
+verify_input <- function(X) {
+  if (!is.data.frame(X) && !is.matrix(X)) {
+    stop("Input must be a dataframe or matrix")
+  }
+
+  if (!("log_cov" %in% colnames(X) && "GC_content" %in% colnames(X) &&
+        "sample" %in% colnames(X) && "contig" %in% colnames(X) &&
+        "length" %in% colnames(X))) {
+    stop("Input must have columns 'log_cov', 'GC_content', 'sample', 'contig', and 'length'")
+  }
+
+  if (length(unique(X$sample)) < 2) {
+    stop("Input must have at least 2 samples")
+  }
+
+  if (length(unique(X$contig)) < 2) {
+    stop("Input must have at least 2 contigs")
+  }
 }
