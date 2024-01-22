@@ -125,7 +125,7 @@ consist_transfer <- function(x, y, i) {
 #' @param y second data frame with six columns
 #' @return a data frame with the same six columns but integrated info
 df_transfer <- function(x, y) {
-  estPTR <- TestPTR2 <- coefficient <- pValue <- correctY <- NULL
+  est_ptr <- test_ptr2 <- coefficient <- pValue <- correctY <- NULL
 
   xy <- data.frame(
     "sample" = sort(union(x$sample, y$sample), method = "shell"),

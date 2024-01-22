@@ -23,7 +23,7 @@ est_ptrs dataframe on success, null otherwise
 Estimates PTRs based on the whole input dataset
 }
 \examples{
-est_ptrs_001 <- est_ptr_from_all(ContigCluster1)
+est_ptrs_001 <- est_ptr_on_all(ContigCluster1)
 est_ptrs_001
 
 }

@@ -47,8 +47,8 @@ est_ptrs_subset <- function(p) {
 #' }
 #' max_cor: the max correlation achieved
 compare_contig_subsets <- function(est_ptrs_x, est_ptrs_y, pipeline_x, pipeline_y, cor_cutoff, max_cor) {
-  pipeline_fail_Q = (length(pipeline_y) == 1) || (length(pipeline_x) == 1)
-  too_much_overlap_Q = length(pipeline_x$pc1$contig) - length(intersect(pipeline_x$pc1$contig, pipeline_y$pc1$contig)) < 3 || length(pipeline_y$pc1$contig) - length(intersect(pipeline_x$pc1$contig, pipeline_y$pc1$contig)) < 3
+  pipeline_fail_Q <- (length(pipeline_y) == 1) || (length(pipeline_x) == 1)
+  too_much_overlap_Q <- length(pipeline_x$pc1$contig) - length(intersect(pipeline_x$pc1$contig, pipeline_y$pc1$contig)) < 3 || length(pipeline_y$pc1$contig) - length(intersect(pipeline_x$pc1$contig, pipeline_y$pc1$contig)) < 3
 
   if (pipeline_fail_Q || too_much_overlap_Q) {
     return(list(est_ptr = NULL, max_cor = max_cor))
@@ -107,14 +107,14 @@ compare_contig_subsets <- function(est_ptrs_x, est_ptrs_y, pipeline_x, pipeline_
 #'   \item correctY: corrected coverage
 #' }
 compare_sample_subsets <- function(est_ptrs_x, est_ptrs_y, pipeline_x, pipeline_y, cor_cutoff, max_cor) {
-  pipeline_fail_Q = (length(pipeline_x) == 1) || (length(pipeline_y) == 1)
+  pipeline_fail_Q <- (length(pipeline_x) == 1) || (length(pipeline_y) == 1)
 
   if (pipeline_fail_Q) {
     return(list(est_ptr = NULL, max_cor = max_cor))
   }
 
-  sample_intersection = intersect(est_ptrs_x$sample, est_ptrs_y$sample)
-  est_ptrs_int = merge(est_ptrs_x[est_ptrs_x$sample %in% sample_intersection, ], est_ptrs_y[est_ptrs_y$sample %in% sample_intersection, ], by = "sample")
+  sample_intersection <- intersect(est_ptrs_x$sample, est_ptrs_y$sample)
+  est_ptrs_int <- merge(est_ptrs_x[est_ptrs_x$sample %in% sample_intersection, ], est_ptrs_y[est_ptrs_y$sample %in% sample_intersection, ], by = "sample")
 
   minor_sample1 <- cor_diff(est_ptrs_x)
   minor_sample2 <- cor_diff(est_ptrs_y)

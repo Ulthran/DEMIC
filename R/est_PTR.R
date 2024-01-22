@@ -72,8 +72,8 @@ verify_input <- function(X) {
   }
 
   if (!("log_cov" %in% colnames(X) && "GC_content" %in% colnames(X) &&
-        "sample" %in% colnames(X) && "contig" %in% colnames(X) &&
-        "length" %in% colnames(X))) {
+    "sample" %in% colnames(X) && "contig" %in% colnames(X) &&
+    "length" %in% colnames(X))) {
     stop("Input must have columns 'log_cov', 'GC_content', 'sample', 'contig', and 'length'")
   }
 

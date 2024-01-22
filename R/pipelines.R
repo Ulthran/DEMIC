@@ -11,7 +11,7 @@
 #' }
 #'
 #' @examples
-#' est_ptrs_001 <- est_ptr_from_all(ContigCluster1)
+#' est_ptrs_001 <- est_ptr_on_all(ContigCluster1)
 #' est_ptrs_001
 #'
 #' @export
@@ -73,7 +73,7 @@ est_ptr_on <- function(X, subset_on, max_attempts = 10, num_subsets = 3, cor_cut
     subset_pipelines <- lapply(subsets, function(z) iterate_pipelines(X[!X[[subset_on]] %in% z, ]))
     subset_est_ptrs <- lapply(subset_pipelines, function(z) est_ptrs_subset(z))
 
-    for (x in 1:(num_subsets-1)) {
+    for (x in 1:(num_subsets - 1)) {
       for (y in (x + 1):num_subsets) {
         if (is.null(subset_est_ptrs[[x]]) || is.null(subset_est_ptrs[[y]])) {
           next

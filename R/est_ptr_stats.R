@@ -13,6 +13,8 @@
 #'  \item samples_mean: mean of PTR estimates from samples method
 #' }
 #'
+#' @importFrom stats sd
+#'
 #' @examples
 #' stats <- get_eptr_stats(ContigCluster1)
 #' stats
@@ -39,30 +41,30 @@ get_eptr_stats <- function(X, iterations = 30) {
   }
 
   if (length(all_ptrs) == 0) {
-    all_sd = NULL
-    all_mean = NULL
+    all_sd <- NULL
+    all_mean <- NULL
   } else {
     all_ptrs <- matrix(unlist(all_ptrs), nrow = length(all_ptrs), byrow = TRUE)
-    all_sd = apply(all_ptrs, 2, sd)
-    all_mean = apply(all_ptrs, 2, mean)
+    all_sd <- apply(all_ptrs, 2, sd)
+    all_mean <- apply(all_ptrs, 2, mean)
   }
 
   if (length(contigs_ptrs) == 0) {
-    contigs_sd = NULL
-    contigs_mean = NULL
+    contigs_sd <- NULL
+    contigs_mean <- NULL
   } else {
     contigs_ptrs <- matrix(unlist(contigs_ptrs), nrow = length(contigs_ptrs), byrow = TRUE)
-    contigs_sd = apply(contigs_ptrs, 2, sd)
-    contigs_mean = apply(contigs_ptrs, 2, mean)
+    contigs_sd <- apply(contigs_ptrs, 2, sd)
+    contigs_mean <- apply(contigs_ptrs, 2, mean)
   }
 
   if (length(samples_ptrs) == 0) {
-    samples_sd = NULL
-    samples_mean = NULL
+    samples_sd <- NULL
+    samples_mean <- NULL
   } else {
     samples_ptrs <- matrix(unlist(samples_ptrs), nrow = length(samples_ptrs), byrow = TRUE)
-    samples_sd = apply(samples_ptrs, 2, sd)
-    samples_mean = apply(samples_ptrs, 2, mean)
+    samples_sd <- apply(samples_ptrs, 2, sd)
+    samples_mean <- apply(samples_ptrs, 2, mean)
   }
 
   list(
