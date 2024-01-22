@@ -26,7 +26,7 @@ named list of stats on PTR estimates
 Generate a variety of stats on PTR estimates for a given dataset
 }
 \examples{
-stats <- get_eptr_stats(max_bin_003, 2)
+stats <- get_eptr_stats(max_bin_001[max_bin_001$sample \%in\% c('Akk0_001', 'Akk1_001'), ], 2)
 stats
 
 }

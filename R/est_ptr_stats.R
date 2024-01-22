@@ -16,7 +16,7 @@
 #' @importFrom stats sd
 #'
 #' @examples
-#' stats <- get_eptr_stats(max_bin_003, 2)
+#' stats <- get_eptr_stats(max_bin_001[max_bin_001$sample %in% c('Akk0_001', 'Akk1_001'), ], 2)
 #' stats
 #'
 #' @export
@@ -26,7 +26,7 @@ get_eptr_stats <- function(X, iterations = 30) {
   samples_ptrs <- list()
 
   for (i in 1:iterations) {
-    print(paste("Iteration", i))
+    message(paste("Iteration", i))
     ptrs <- est_ptr(X)
 
     if (!is.null(ptrs$all_ptr)) {
