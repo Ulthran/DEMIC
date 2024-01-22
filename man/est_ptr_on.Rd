@@ -11,9 +11,13 @@ est_ptr_on(X, subset_on, max_attempts = 10, num_subsets = 3, cor_cutoff = 0.98)
 \arguments{
 \item{X}{cov3 dataframe}
 
+\item{subset_on}{either "contig" or "sample"}
+
 \item{max_attempts}{max number of attempts to find a valid ptr estimate}
 
 \item{num_subsets}{number of subsets to split contigs/samples into}
+
+\item{cor_cutoff}{minimum correlation coefficient to accept PTR estimate}
 }
 \value{
 est_ptrs dataframe on success, null otherwise

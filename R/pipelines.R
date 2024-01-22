@@ -36,8 +36,10 @@ est_ptr_on_all <- function(X) {
 #' Requires a minimum of 2 * num_subsets contigs/samples
 #'
 #' @param X cov3 dataframe
+#' @param subset_on either "contig" or "sample"
 #' @param max_attempts max number of attempts to find a valid ptr estimate
 #' @param num_subsets number of subsets to split contigs/samples into
+#' @param cor_cutoff minimum correlation coefficient to accept PTR estimate
 #' @return est_ptrs dataframe on success, null otherwise
 #' \itemize{
 #'   \item est_ptr: estimated PTR values
