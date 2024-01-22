@@ -1,10 +1,3 @@
-############################################################################
-# Copyright (c) 2016-2018 DBEI, UPENN
-# All Rights Reserved
-# See file LICENSE for details.
-############################################################################
-
-
 #' A convenient function for KS test of uniform distribution
 #' @param x a vector without NA
 #' @return the p value of KS test

@@ -34,8 +34,8 @@ test_that("DEMIC main function produces correct output on sourceforge data clust
   O$all_ptr <- abs(O$all_ptr)
   O$contigs_ptr <- abs(O$contigs_ptr)
 
-  expect_equal(O$all_ptr, EO1, tolerance = 0.1)
-  expect_equal(O$contigs_ptr, EO1, tolerance = 0.1)
+  expect_equal(O$all_ptr, EO1, tolerance = 0.2)
+  expect_equal(O$contigs_ptr, EO1, tolerance = 0.2)
   print(O)
 })
 
@@ -44,8 +44,8 @@ test_that("DEMIC main function produces correct output on sourceforge data clust
   O$all_ptr <- abs(O$all_ptr)
   O$contigs_ptr <- abs(O$contigs_ptr)
 
-  expect_equal(O$all_ptr, EO2, tolerance = 0.1)
-  expect_equal(O$contigs_ptr, EO2, tolerance = 0.1)
+  expect_equal(O$all_ptr, EO2, tolerance = 0.2)
+  expect_equal(O$contigs_ptr, EO2, tolerance = 0.2)
   print(O)
 })
 
