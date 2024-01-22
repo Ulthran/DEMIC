@@ -1,4 +1,4 @@
-#' Tries to estimate based on the whole input dataset
+#' Estimates PTRs based on the whole input dataset
 #'
 #' @param X cov3 dataframe
 #' @return est_ptrs dataframe on success, null otherwise
@@ -15,7 +15,7 @@
 #' est_ptrs_001
 #'
 #' @export
-est_ptr_from_all <- function(X) {
+est_ptr_on_all <- function(X) {
   p <- iterate_pipelines(X)
   est_ptrs <- est_ptrs_subset(p)
 
@@ -80,8 +80,6 @@ est_ptr_on <- function(X, subset_on, max_attempts = 10, num_subsets = 3, cor_cut
         }
 
         if (subset_on == "contig") {
-          # WHY ARE WE KEEPING TRACK OF MAX_COR???
-          # Should use it to compare all comparisons in the end instead of just taking the first result over a threshold
           comparison <- compare_contig_subsets(subset_est_ptrs[[x]], subset_est_ptrs[[y]], subset_pipelines[[x]], subset_pipelines[[y]], cor_cutoff, max_cor)
         } else if (subset_on == "sample") {
           comparison <- compare_sample_subsets(subset_est_ptrs[[x]], subset_est_ptrs[[y]], subset_pipelines[[x]], subset_pipelines[[y]], cor_cutoff, max_cor)
