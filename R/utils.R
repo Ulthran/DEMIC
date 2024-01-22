@@ -1,10 +1,3 @@
-############################################################################
-# Copyright (c) 2016-2018 DBEI, UPENN
-# All Rights Reserved
-# See file LICENSE for details.
-############################################################################
-
-
 #' A convenient function for KS test of uniform distribution
 #' @param x a vector without NA
 #' @return the p value of KS test
@@ -77,7 +70,7 @@ filter_sample <- function(Z, avg_cutoff, cutoff_ratio) {
   samples_filtered
 }
 
-#' A function for orientation determination
+#' Determine the majority orientation of the input PTR estimates correlations
 #' @param Z a vector of values
 #' @return a minor subset, where each value has the same orientation
 cor_diff <- function(Z) {
@@ -132,11 +125,11 @@ consist_transfer <- function(x, y, i) {
 #' @param y second data frame with six columns
 #' @return a data frame with the same six columns but integrated info
 df_transfer <- function(x, y) {
-  estPTR <- TestPTR2 <- coefficient <- pValue <- correctY <- NULL
+  est_ptr <- test_ptr2 <- coefficient <- pValue <- correctY <- NULL
 
   xy <- data.frame(
     "sample" = sort(union(x$sample, y$sample), method = "shell"),
-    "est_ptr" = consist_transfer(subset(x, select = c(sample, estPTR)), subset(y, select = c(sample, TestPTR2)), 1),
+    "est_ptr" = consist_transfer(subset(x, select = c(sample, est_ptr)), subset(y, select = c(sample, test_ptr2)), 1),
     "coefficient" = consist_transfer(subset(x, select = c(sample, coefficient)), subset(y, select = c(sample, coefficient)), 1),
     "pValue" = consist_transfer(subset(x, select = c(sample, pValue)), subset(y, select = c(sample, pValue)), 2),
     "cor" = consist_transfer(subset(x, select = c(sample, cor)), subset(y, select = c(sample, cor)), 1),

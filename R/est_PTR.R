@@ -1,17 +1,27 @@
-demic_env <- new.env(parent = emptyenv())
-demic_env$MIN_CONTIGS <- 20
-demic_env$MIN_SAMPLES <- 3
-demic_env$MAX_ITER <- 3
-
-#' Main function
+#' Estimate PTRs using all input data as well as using subsets of contigs and samples
 #'
 #' @param X dataframe with coverage matrix
-#' (column names: "logCov", "GC", "sample", "contig", "length")
-#' @param max_candidate_iter max allowed iterations for estimation of PTR
-#' (default: 10)
-#' @return dataframe with the estimated PTRs
+#' (column names: "log_cov", "GC_content", "sample", "contig", "length")
+#' @return named list with results from all three methods
+#' all_ptr dataframe with the estimated PTRs on success, null otherwise
 #' \itemize{
-#'   \item estPTR: estimated PTR values
+#'   \item est_ptr: estimated PTR values
+#'   \item coefficient: coefficient of linear regression
+#'   \item pValue: p-value of linear regression
+#'   \item cor: correlation coefficient
+#'   \item correctY: corrected coverage
+#' }
+#' contigs_ptr dataframe with the estimated PTRs on success, null otherwise
+#' \itemize{
+#'   \item est_ptr: estimated PTR values
+#'   \item coefficient: coefficient of linear regression
+#'   \item pValue: p-value of linear regression
+#'   \item cor: correlation coefficient
+#'   \item correctY: corrected coverage
+#' }
+#' samples_ptr dataframe with the estimated PTRs on success, null otherwise
+#' \itemize{
+#'   \item est_ptr: estimated PTR values
 #'   \item coefficient: coefficient of linear regression
 #'   \item pValue: p-value of linear regression
 #'   \item cor: correlation coefficient
@@ -19,18 +29,59 @@ demic_env$MAX_ITER <- 3
 #' }
 #'
 #' @examples
-#' est_ptrs_001 <- est_ptr(max_bin_001)
+#' est_ptrs_001 <- est_ptr(ContigCluster1)
 #' est_ptrs_001
 #'
 #' @export
-est_ptr <- function(X, max_candidate_iter = 10) {
+est_ptr <- function(X) {
   verify_input(X)
 
-  contig_est_ptrs <- contigs_pipeline(X)
-  sample_est_ptrs <-
-    samples_pipeline(X, max_candidate_iter = max_candidate_iter)
+  tryCatch(
+    all_est_ptrs <- est_ptr_on_all(X),
+    error = function(e) {
+      all_est_ptrs <- NULL
+      message("Error in est_ptr_from_all: ", e)
+    }
+  )
 
-  est_ptrs <- combine_ests(contig_est_ptrs, sample_est_ptrs)
+  tryCatch(
+    contig_est_ptrs <- est_ptr_on(X, "contig"),
+    error = function(e) {
+      contig_est_ptrs <- NULL
+      message("Error in est_ptr_on_contigs: ", e)
+    }
+  )
 
-  est_ptrs
+  tryCatch(
+    sample_est_ptrs <- est_ptr_on(X, "sample"),
+    error = function(e) {
+      sample_est_ptrs <- NULL
+      message("Error in est_ptr_on_samples: ", e)
+    }
+  )
+
+  list(all_ptr = all_est_ptrs, contigs_ptr = contig_est_ptrs, samples_ptr = sample_est_ptrs)
+}
+
+#' Verify that the input dataframe/matrix is valid
+#'
+#' @param X dataframe/matrix with cov3 information
+verify_input <- function(X) {
+  if (!is.data.frame(X) && !is.matrix(X)) {
+    stop("Input must be a dataframe or matrix")
+  }
+
+  if (!("log_cov" %in% colnames(X) && "GC_content" %in% colnames(X) &&
+    "sample" %in% colnames(X) && "contig" %in% colnames(X) &&
+    "length" %in% colnames(X))) {
+    stop("Input must have columns 'log_cov', 'GC_content', 'sample', 'contig', and 'length'")
+  }
+
+  if (length(unique(X$sample)) < 2) {
+    stop("Input must have at least 2 samples")
+  }
+
+  if (length(unique(X$contig)) < 2) {
+    stop("Input must have at least 2 contigs")
+  }
 }

@@ -1,7 +1,7 @@
 # Sample data for testing
 sample_data_x <- data.frame(
   sample = c("Sample1", "Sample2", "Sample3"),
-  estPTR = c(0.5, 0.6, 0.7),
+  est_ptr = c(0.5, 0.6, 0.7),
   coefficient = c(1.0, 1.1, 1.2),
   pValue = c(0.01, 0.02, 0.03),
   cor = c(0.9, -0.8, 0.7),
@@ -10,7 +10,7 @@ sample_data_x <- data.frame(
 
 sample_data_y <- data.frame(
   sample = c("Sample2", "Sample3", "Sample4"),
-  TestPTR2 = c(0.4, 0.5, 0.6),
+  test_ptr2 = c(0.4, 0.5, 0.6),
   coefficient = c(1.1, 1.2, 1.3),
   pValue = c(0.02, 0.03, 0.04),
   cor = c(-0.8, 0.7, 0.6),

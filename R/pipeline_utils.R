@@ -1,48 +1,3 @@
-#' Verify input data meets pipeline criteria
-#'
-#' @param X cov3 matrix as a dataframe
-#' @return TRUE if the input data meets the criteria, FALSE otherwise
-verify_input <- function(X) {
-  if (!length(X)) {
-    stop("Input data is empty")
-  }
-  if (length(unique(X$contig)) < demic_env$MIN_CONTIGS) {
-    stop(paste("Not enough contigs", length(unique(X$contig)), "<", demic_env$MIN_CONTIGS))
-  }
-  if (length(unique(X$sample)) < demic_env$MIN_SAMPLES) {
-    stop(paste("Not enough samples", length(unique(X$sample)), "<", demic_env$MIN_SAMPLES))
-  }
-  if (is.null(levels(X$contig))) {
-    stop("levels(X$contig) is empty, did you remember to read in the data with strings as factors? e.g. X <- read.csv('/path/to/file.cov3', stringsAsFactors=TRUE)")
-  }
-
-  return(TRUE)
-}
-
-#' Combine output from the contigs pipeline and samples pipeline
-#'
-#' @param contigs output from the contigs pipeline
-#' @param samples output from the samples pipeline
-#' @return a dataframe with the combined estimated PTRs
-combine_ests <- function(contigs, samples) {
-  est_ptrs <- contigs
-  # est_ptrs <- list(contigs=contigs, samples=samples)
-
-  est_ptrs
-}
-
-#' Gives a randomly ordered set of contigs
-#'
-#' @param X input data frame that includes contigs
-#' @return contigs randomly ordered
-rand_ordered_contigs <- function(X) {
-  rands <- sample.int(10000, size = length(levels(X$contig)), replace = FALSE)
-  contigs <- data.frame("Contig" = levels(X$contig), "number" = rands)
-  contigs <- contigs[order(contigs[, 2]), ]
-
-  contigs
-}
-
 #' Get PTR estimates for output of the core pipeline on a subset of data
 #'
 #' @param p is the pipeline named list
@@ -57,6 +12,10 @@ rand_ordered_contigs <- function(X) {
 #' }
 est_ptrs_subset <- function(p) {
   PC1 <- contig <- NULL
+  if (length(p) == 1) {
+    warning("PTR estimation on one subset was unsuccessful")
+    return(NULL)
+  }
 
   sample_correct_y_PC1 <- merge(reshape2::dcast(subset(p$correct_ys, select = c("sample", "contig", "correctY")), contig ~ sample, value.var = "correctY"), p$pc1)
 
@@ -69,31 +28,15 @@ est_ptrs_subset <- function(p) {
   merge(est_ptrs, aggregate(correctY ~ sample, p$correct_ys, FUN = "median"), by = "sample")
 }
 
-#' Run mixed linear model with random effect using lme4
-#'
-#' @param X input data frame
-#' @return a dataframe
-#'
-#' @importFrom lme4 lmer
-#' @importFrom stats coef
-lme4_model <- function(X) {
-  lmeModel <- lmer(log_cov ~ GC_content + (1 | sample:contig), data = X, REML = FALSE)
-
-  lmeModelCoef <- coef(lmeModel)$`sample:contig`
-  lmeModelCoef$s_c <- rownames(lmeModelCoef)
-
-  lmeModelCoef
-}
-
 #' Compares contig subset x against contig subset y
 #'
-#' @param X input data frame
-#' @param contig_subset_x the first set of contigs
-#' @param contig_subset_y the second set of contigs
-#' @param na_contig_ids the set of bad contigs discovered so far
+#' @param est_ptrs_x PTR estimates from contig subset x
+#' @param est_ptrs_y PTR estimates from contig subset y
+#' @param pipeline_x pipeline for contig subset x
+#' @param pipeline_y pipeline for contig subset y
 #' @param cor_cutoff the correlation cutoff
 #' @param max_cor the max correlation
-#' @return a dataframe
+#' @return a named list including the est_ptr dataframe and a max_cor value
 #' \itemize{
 #'   \item sample: sample
 #'   \item est_ptr: PTR estimate
@@ -102,54 +45,111 @@ lme4_model <- function(X) {
 #'   \item cor: correlation coefficient
 #'   \item correctY: corrected coverage
 #' }
-compare_x_y <- function(X, contig_subset_x, contig_subset_y, na_contig_ids, cor_cutoff, max_cor) {
-  pipeline_x <- iterate_pipelines(X[!X$contig %in% contig_subset_x, ])
-  if (length(pipeline_x) == 1) {
-    return(paste("Pipeline failed (", pipeline_x, ")"))
-  }
+#' max_cor: the max correlation achieved
+compare_contig_subsets <- function(est_ptrs_x, est_ptrs_y, pipeline_x, pipeline_y, cor_cutoff, max_cor) {
+  pipeline_fail_Q <- (length(pipeline_y) == 1) || (length(pipeline_x) == 1)
+  too_much_overlap_Q <- length(pipeline_x$pc1$contig) - length(intersect(pipeline_x$pc1$contig, pipeline_y$pc1$contig)) < 3 || length(pipeline_y$pc1$contig) - length(intersect(pipeline_x$pc1$contig, pipeline_y$pc1$contig)) < 3
 
-  pipeline_y <- iterate_pipelines(X[!X$contig %in% contig_subset_y, ])
-  if (length(pipeline_y) == 1) {
-    return()
+  if (pipeline_fail_Q || too_much_overlap_Q) {
+    return(list(est_ptr = NULL, max_cor = max_cor))
   }
-
-  if (length(pipeline_x$pc1$contig) - length(intersect(pipeline_x$pc1$contig, pipeline_y$pc1$contig)) < 3 || length(pipeline_y$pc1$contig) - length(intersect(pipeline_x$pc1$contig, pipeline_y$pc1$contig)) < 3) {
-    # Not enough unique contigs in each set
-    return()
-  }
-
-  est_ptrs_x <- est_ptrs_subset(pipeline_x)
-  est_ptrs_y <- est_ptrs_subset(pipeline_y)
 
   minor_sample1 <- cor_diff(est_ptrs_x)
   minor_sample2 <- cor_diff(est_ptrs_y)
-  if ((length(minor_sample1) > 0 & length(minor_sample2) > 0) | (max(est_ptrs_x$est_ptr) < 1.8 & max(est_ptrs_y$est_ptr) < 1.8) | (max(est_ptrs_x$est_ptr) / min(est_ptrs_x$est_ptr) > 5 & max(est_ptrs_y$est_ptr) / min(est_ptrs_y$est_ptr) > 5)) {
-    return()
+
+  # The rest of these filtering clauses are just weird, probably shouldn't be hardcoded cutoffs like this
+  if ((length(minor_sample1) > 0 & length(minor_sample2) > 0)) { #| (max(est_ptrs_x$est_ptr) < 1.8 & max(est_ptrs_y$est_ptr) < 1.8) | (max(est_ptrs_x$est_ptr) / min(est_ptrs_x$est_ptr) > 5 & max(est_ptrs_y$est_ptr) / min(est_ptrs_y$est_ptr) > 5)) {
+    return(list(est_ptr = NULL, max_cor = max_cor))
   }
 
   est_ptrs_x_y <- merge(est_ptrs_x, est_ptrs_y, by = "sample")
 
   if (nrow(est_ptrs_x_y) > 0.9 * max(c(nrow(est_ptrs_x), nrow(est_ptrs_y)))) {
-    if (var(est_ptrs_x_y$est_ptr.x) == 0 || var(est_ptrs_x_y$est_ptr.y) == 0) {
-      est_ptrs_x_y$est_ptr.x <- jitter(est_ptrs_x_y$est_ptr.x)
-      est_ptrs_x_y$est_ptr.y <- jitter(est_ptrs_x_y$est_ptr.y)
-    }
-    cor_current <- cor(est_ptrs_x_y$est_ptr.x, est_ptrs_x_y$est_ptr.y)
-    if (is.na(cor_current)) {
-      return("NA found in correlation calculation")
-    }
-    if (cor_current > max_cor) {
-      max_cor <- cor_current
+    cor_xy <- cor(est_ptrs_x_y$est_ptr.x, est_ptrs_x_y$est_ptr.y)
+
+    if (is.na(cor_xy)) {
+      return(list(est_ptr = NULL, max_cor = max_cor))
     }
 
-    if (cor(est_ptrs_x_y$est_ptr.x, est_ptrs_x_y$est_ptr.y) > cor_cutoff) {
+    if (cor_xy > max_cor) {
+      max_cor <- cor_xy
+    }
+
+    if (cor_xy > cor_cutoff) {
       est_ptrs_x_y$est_ptr <- apply(subset(est_ptrs_x_y, select = c("est_ptr.x", "est_ptr.y")), 1, mean)
       est_ptrs_x_y$coefficient <- apply(subset(est_ptrs_x_y, select = c("coefficient.x", "coefficient.y")), 1, function(x) mean(abs(x)))
       est_ptrs_x_y$pValue <- apply(subset(est_ptrs_x_y, select = c("pValue.x", "pValue.y")), 1, max)
       est_ptrs_x_y$cor <- apply(subset(est_ptrs_x_y, select = c("cor.x", "cor.y")), 1, function(x) mean(abs(x)))
       est_ptrs_x_y$correctY <- apply(subset(est_ptrs_x_y, select = c("correctY.x", "correctY.y")), 1, mean)
 
-      subset(est_ptrs_x_y, select = c("sample", "est_ptr", "coefficient", "pValue", "cor", "correctY"))
+      return(list(est_ptr = subset(est_ptrs_x_y, select = c("sample", "est_ptr", "coefficient", "pValue", "cor", "correctY")), max_cor = max_cor))
     }
   }
+
+  list(est_ptr = NULL, max_cor = max_cor)
+}
+
+#' Compares sample subset x against sample subset y
+#'
+#' @param est_ptrs_x PTR estimates from sample subset x
+#' @param est_ptrs_y PTR estimates from sample subset y
+#' @param pipeline_x pipeline for sample subset x
+#' @param pipeline_y pipeline for sample subset y
+#' @param cor_cutoff the correlation cutoff
+#' @param max_cor the max correlation
+#' @return a named list including the est_ptr dataframe and a max_cor value
+#' \itemize{
+#'   \item sample: sample
+#'   \item est_ptr: PTR estimate
+#'   \item coefficient: coefficient of linear regression
+#'   \item pValue: p-value of linear regression
+#'   \item cor: correlation coefficient
+#'   \item correctY: corrected coverage
+#' }
+compare_sample_subsets <- function(est_ptrs_x, est_ptrs_y, pipeline_x, pipeline_y, cor_cutoff, max_cor) {
+  pipeline_fail_Q <- (length(pipeline_x) == 1) || (length(pipeline_y) == 1)
+
+  if (pipeline_fail_Q) {
+    return(list(est_ptr = NULL, max_cor = max_cor))
+  }
+
+  sample_intersection <- intersect(est_ptrs_x$sample, est_ptrs_y$sample)
+  est_ptrs_int <- merge(est_ptrs_x[est_ptrs_x$sample %in% sample_intersection, ], est_ptrs_y[est_ptrs_y$sample %in% sample_intersection, ], by = "sample")
+
+  minor_sample1 <- cor_diff(est_ptrs_x)
+  minor_sample2 <- cor_diff(est_ptrs_y)
+
+  if ((length(minor_sample1) > 0 & length(minor_sample2) > 0)) {
+    return(list(est_ptr = NULL, max_cor = max_cor))
+  }
+
+  cor_xy <- cor(est_ptrs_int$est_ptr.x, est_ptrs_int$est_ptr.y)
+
+  if (is.na(cor_xy)) {
+    return(list(est_ptr = NULL, max_cor = max_cor))
+  }
+
+  if (cor_xy > max_cor) {
+    max_cor <- cor_xy
+  }
+
+  if (cor_xy > cor_cutoff) {
+    rownames(est_ptrs_int) <- est_ptrs_int$sample
+    only_est_ptrs_int <- subset(est_ptrs_int, select = c("est_ptr.x", "est_ptr.y"))
+    est_ptrs_int_pca <- prcomp(only_est_ptrs_int)
+
+    est_ptrs_x$test_ptr <- (est_ptrs_x$est_ptr - mean(est_ptrs_int$est_ptr.x)) / est_ptrs_int_pca$rotation[1, 1]
+    est_ptrs_y$test_ptr <- (est_ptrs_y$est_ptr - mean(est_ptrs_int$est_ptr.y)) / est_ptrs_int_pca$rotation[2, 1]
+    est_ptrs_y$test_ptr2 <- est_ptrs_y$test_ptr * est_ptrs_int_pca$rotation[1, 1] + mean(est_ptrs_int$est_ptr.x)
+    est_ptrs_x$test_ptr2 <- est_ptrs_x$test_ptr * est_ptrs_int_pca$rotation[2, 1] + mean(est_ptrs_int$est_ptr.y)
+
+    if (test_reasonable(est_ptrs_x$test_ptr2, est_ptrs_y$est_ptr) > test_reasonable(est_ptrs_y$test_ptr2, est_ptrs_x$est_ptr) & test_reasonable(est_ptrs_x$test_ptr2, est_ptrs_y$est_ptr) > 0.2) {
+      return(list(est_ptr = df_transfer(est_ptrs_y, est_ptrs_x), max_cor = max_cor))
+    }
+    if (test_reasonable(est_ptrs_x$test_ptr2, est_ptrs_y$est_ptr) < test_reasonable(est_ptrs_y$test_ptr2, est_ptrs_x$est_ptr) & test_reasonable(est_ptrs_y$test_ptr2, est_ptrs_x$est_ptr) > 0.2) {
+      return(list(est_ptr = df_transfer(est_ptrs_x, est_ptrs_y), max_cor = max_cor))
+    }
+  }
+
+  list(est_ptr = NULL, max_cor = max_cor)
 }

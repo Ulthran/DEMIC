@@ -1,3 +1,19 @@
+#' Run mixed linear model with random effect using lme4
+#'
+#' @param X input data frame
+#' @return a dataframe
+#'
+#' @importFrom lme4 lmer
+#' @importFrom stats coef
+lme4_model <- function(X) {
+  lmeModel <- lmer(log_cov ~ GC_content + (1 | sample:contig), data = X, REML = FALSE)
+
+  lmeModelCoef <- coef(lmeModel)$`sample:contig`
+  lmeModelCoef$s_c <- rownames(lmeModelCoef)
+
+  lmeModelCoef
+}
+
 #' A function representing the pipeline of four steps
 #' including GC bias correction, sample filtration, PCA and contig filtration
 #' @param Y a matrix of coverages
