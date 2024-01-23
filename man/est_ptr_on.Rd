@@ -33,10 +33,10 @@ est_ptrs dataframe on success, null otherwise
 Requires a minimum of 2 * num_subsets contigs/samples
 }
 \examples{
-est_ptrs_001_on_contigs <- est_ptr_on(ContigCluster1, "contig", num_subsets = 5)
+est_ptrs_001_on_contigs <- est_ptr_on(max_bin_003, "contig", num_subsets = 5)
 est_ptrs_001_on_contigs
 
-est_ptrs_001_on_samples <- est_ptr_on(ContigCluster1, "sample")
-est_ptrs_001_on_samples
+est_ptrs_001_on_samples <- est_ptr_on(max_bin_003, "sample")
+is.null(est_ptrs_001_on_samples)
 
 }

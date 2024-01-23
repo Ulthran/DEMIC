@@ -4,7 +4,7 @@ Description: Multi-sample algorithm based on contigs and coverage values, to
     infer the relative distances of contigs from the replication origin and to 
     accurately compare bacterial growth rates between samples. Yuan Gao and 
     Hongzhe Li (2018) <doi:10.1038/s41592-018-0182-0>.
-Version: 1.0.3
+Version: 2.0.0.9000
 Authors@R: c(
     person("Yuan", "Gao", email = "gy.james@163.com", role = c("aut", "cph")),
     person("Charlie", "Bushman", email = "ctbushman@gmail.com", role = c("cre")))
