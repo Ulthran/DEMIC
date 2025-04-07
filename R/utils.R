@@ -9,10 +9,11 @@ ks <- function(x) {
 
 #' A function to remove outlier contigs using KS test
 #' @param sort_values a vector of sorted values
-#' @return a vector with all values following a uniform distribution
+#' @return a vector with min/max KS values and a third boolean indicating success
 select_by_ks_test <- function(sort_values) {
   len <- length(sort_values)
   if (len < 10) {
+    # KS test failed to select a reasonable set of contigs
     return(c(0, 0, FALSE))
   }
 
@@ -56,12 +57,13 @@ lm_column <- function(x, y) {
 }
 
 #' A function for sample filtration
-#' Input requirements: 1. have values in more than half of the contigs 2. average log2(cov) > 0 in all these contigs
+#' Input requirements: 1. have values in at least cutoff_ratio contigs 2. average log2(cov) > avg_cutoff in all these contigs
+#'
 #' @param Z a matrix
 #' @param avg_cutoff threshold of average
 #' @param cutoff_ratio threshold of ratio
 #' @return the coefficient and p value of linear regression
-filter_sample <- function(Z, avg_cutoff, cutoff_ratio) {
+filter_samples <- function(Z, avg_cutoff, cutoff_ratio) {
   z_summary <- aggregate(correctY ~ (sample), Z, FUN = function(x) c(sum(x), length(x)))
 
   contig_level <- length(unique(Z$contig))
@@ -84,9 +86,10 @@ cor_diff <- function(Z) {
 }
 
 #' A function for reshape to facilitate PCA, removing all contigs with missing values for designated samples
+#'
 #' @param samples_filtered a vector of samples
 #' @param Z a matrix of coverage
-#' @return a reshaped matrix of coverage
+#' @return a reshaped matrix of corrected coverages with contigs as rows and samples as columns
 reshape_filtered <- function(samples_filtered, Z) {
   contig <- correctY <- NULL
 
@@ -104,6 +107,7 @@ reshape_filtered <- function(samples_filtered, Z) {
 }
 
 #' A function for data frame integration
+#'
 #' @param x first data frame
 #' @param y second data frame
 #' @param i 'sample' column
@@ -121,6 +125,7 @@ consist_transfer <- function(x, y, i) {
 }
 
 #' A function for data frame transfer
+#'
 #' @param x first data frame with six columns
 #' @param y second data frame with six columns
 #' @return a data frame with the same six columns but integrated info
@@ -140,6 +145,7 @@ df_transfer <- function(x, y) {
 }
 
 #' A function to test whether the result is reasonable
+#'
 #' @param a first vector of values
 #' @param b second vector of values
 #' @return the test result
@@ -153,12 +159,13 @@ test_reasonable <- function(a, b) {
 }
 
 #' A function to return the first dimension of PCA on an input matrix
+#'
 #' @param X a matrix to undergo PCA
 #' @return first dimension of the PCA results
 #'
 #' @importFrom stats prcomp
 contig_pca <- function(X) {
-  contig_pca <- prcomp(X) # take first component (PC1)
+  contig_pca <- prcomp(X)
 
   data.frame("contig" = rownames(contig_pca$x), "PC1" = contig_pca$x[, "PC1"])
 }

@@ -17,14 +17,16 @@ est_ptrs_subset <- function(p) {
     return(NULL)
   }
 
+  # For each contig, holds correctY values per sample and PC1 for the contig
   sample_correct_y_PC1 <- merge(reshape2::dcast(subset(p$correct_ys, select = c("sample", "contig", "correctY")), contig ~ sample, value.var = "correctY"), p$pc1)
 
+  # Run lm_colum on each sample's correctY values with PC1s
   lm_model_co <- apply(subset(sample_correct_y_PC1, select = -c(contig, PC1)), 2, lm_column, y = sample_correct_y_PC1$PC1)
   cor_model <- apply(subset(sample_correct_y_PC1, select = -c(contig, PC1)), 2, function(x) cor.test(sample_correct_y_PC1$PC1, x)$estimate)
 
   est_ptrs <- data.frame("est_ptr" = 2^abs(lm_model_co[1, ] * (p$pc1_range[1] - p$pc1_range[2])), "coefficient" = lm_model_co[1, ], "pValue" = lm_model_co[2, ], "cor" = cor_model)
   est_ptrs$sample <- rownames(est_ptrs)
-
+  browser()
   merge(est_ptrs, aggregate(correctY ~ sample, p$correct_ys, FUN = "median"), by = "sample")
 }
 

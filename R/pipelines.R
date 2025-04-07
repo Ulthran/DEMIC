@@ -29,6 +29,27 @@ est_ptr_on_all <- function(X) {
   est_ptrs
 }
 
+#' Estimates PTRs based on a few high quality contigs per sample
+#'
+#' @param X cov3 dataframe
+#' @return est_ptrs dataframe on success, null otherwise
+#' \itemize{
+#'  \item est_ptr: estimated PTR values
+#'  \item coefficient: coefficient of linear regression
+#'  \item pValue: p-value of linear regression
+#'  \item cor: correlation coefficient
+#'  \item correctY: corrected coverage
+#' }
+#'
+#' @examples
+#' est_ptrs_001_on_hq <- est_ptr_on_hq(max_bin_003)
+#' est_ptrs_001_on_hq
+#'
+#' @export
+est_ptr_on_hq <- function(X) {
+
+}
+
 #' Tries up to max_attempts times to compare each permutation of removing random
 #' subsets of contigs/samples from X, and returns the PTR estimate if a valid
 #' one comes back from the comparisons
