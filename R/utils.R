@@ -62,12 +62,17 @@ lm_column <- function(x, y) {
 #' @param cutoff_ratio threshold of ratio
 #' @return the coefficient and p value of linear regression
 filter_sample <- function(Z, avg_cutoff, cutoff_ratio) {
-  z_summary <- aggregate(correctY ~ (sample), Z, FUN = function(x) c(sum(x), length(x)))
-
   contig_level <- length(unique(Z$contig))
-  samples_filtered <- z_summary[z_summary$correctY[, 1] >= avg_cutoff * contig_level & z_summary$correctY[, 2] >= cutoff_ratio * contig_level, ]$sample
 
-  samples_filtered
+  Z |>
+    dplyr::group_by(sample) |>
+    dplyr::summarise(
+      total = sum(correctY),
+      n = dplyr::n(),
+      .groups = "drop"
+    ) |>
+    dplyr::filter(total >= avg_cutoff * contig_level, n >= cutoff_ratio * contig_level) |>
+    dplyr::pull(sample)
 }
 
 #' Determine the majority orientation of the input PTR estimates correlations
