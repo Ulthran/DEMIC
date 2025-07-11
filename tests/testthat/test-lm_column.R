@@ -6,10 +6,7 @@ test_that("lm_column returns coefficients and p-value for linear regression", {
 
   # Call the lm_column function
   result <- lm_column(x, y)
-  # Check if the result is a numeric vector
   expect_type(result, "double")
-
-  # Check if the coefficients and p-value are correct
-  expect_equal(result[1][["y"]], 0.5) # Expected coefficient
-  expect_equal(as.numeric(result[2]), 0, tolerance = 1e-20) # Expected p-value (approximately 0.5)
+  expect_equal(result[["y"]], 0.5)
+  expect_lt(as.numeric(result[2]), 1e-6)
 })

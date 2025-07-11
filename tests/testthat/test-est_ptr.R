@@ -1,6 +1,7 @@
 ### Test on high variance simulated data
 
 test_that("DEMIC produces correct PTRs on generated inputs 001", {
+  set.seed(123)
   O <- est_ptr(max_bin_001)
 
   # Too few contigs to effectively estimate higher PTRs, tolerance has to be much higher
@@ -11,6 +12,7 @@ test_that("DEMIC produces correct PTRs on generated inputs 001", {
 })
 
 test_that("DEMIC produces correct PTRs on generated inputs 002 on all", {
+  set.seed(123)
   O <- est_ptr_on_all(max_bin_002)
 
   expect_equal(O$est_ptr, c(2, 3, 4), tolerance = 0.3)
@@ -18,6 +20,7 @@ test_that("DEMIC produces correct PTRs on generated inputs 002 on all", {
 })
 
 test_that("DEMIC produces correct PTRs on generated inputs 003 on contigs", {
+  set.seed(123)
   O <- est_ptr_on(max_bin_003, "contig")
 
   expect_equal(O$est_ptr, c(2, 3, 4), tolerance = 0.3)
@@ -30,6 +33,7 @@ EO1 <- structure(list(est_ptr = c(1.58820988778219, 2.29699398418901, 1.84056370
 EO2 <- structure(list(est_ptr = c(2.21303380999812, 1.75222762168833, 2.25436646747005), coefficient = c(0.626249889762292, 0.442604625244878, 0.64168504060637), pValue = c(2.57415826813133e-48, 1.28302075677619e-31, 6.40172677352955e-52), cor = c(0.976659750095046, 0.928251509604572, 0.980684877999788), correctY = c(0.309937783089312, 0.377917440682641, 0.304441148907541)), row.names = c("Sample1", "Sample2", "Sample3"), class = "data.frame")
 
 test_that("DEMIC main function produces correct output on sourceforge data cluster 1", {
+  set.seed(123)
   O <- est_ptr(ContigCluster1)
   O$all_ptr <- abs(O$all_ptr)
   O$contigs_ptr <- abs(O$contigs_ptr)
@@ -40,6 +44,7 @@ test_that("DEMIC main function produces correct output on sourceforge data clust
 })
 
 test_that("DEMIC main function produces correct output on sourceforge data cluster 2", {
+  set.seed(123)
   O <- est_ptr(ContigCluster2)
   O$all_ptr <- abs(O$all_ptr)
   O$contigs_ptr <- abs(O$contigs_ptr)
