@@ -15,6 +15,8 @@
 #' read_cov3(tmp)
 #'
 #' @export
+#' @importFrom readr read_csv cols col_double col_character col_integer
+#' @importFrom dplyr mutate
 read_cov3 <- function(file, ...) {
   readr::read_csv(
     file,
@@ -28,7 +30,7 @@ read_cov3 <- function(file, ...) {
     ...
   ) |>
     dplyr::mutate(
-      sample = factor(sample),
-      contig = factor(contig)
+      sample = factor(.data$sample),
+      contig = factor(.data$contig)
     )
 }
