@@ -1,5 +1,3 @@
-context("read_cov3")
-
 test_that("read_cov3 loads cov3 files as tibble", {
   tmp <- tempfile(fileext = ".cov3")
   write.csv(max_bin_001, tmp, row.names = FALSE, quote = FALSE)
