@@ -1,1 +1,1 @@
-utils::globalVariables(c("contig", "correctY", "total"))
+utils::globalVariables(c(".data", "contig", "correctY", "total"))
